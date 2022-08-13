@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        {% block head %}
+        <!-- Required meta tags -->
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+        {% block styles %}
+            <!-- Bootstrap CSS -->
+            {{ bootstrap.load_css() }}
+        {% endblock %}
+
+        <title>Доставка</title>
+        {% endblock %}
+    </head>
+    <body>
+		<!-- Your page content -->
+		{% block navbar %}
+			<ul class="nav nav-pills">
+				<li class="nav-item">
+					<a class="nav-link active" aria-current="page" href="{{ url_for('index') }}">Главная</a>
+				</li>
+				{% if current_user.is_authenticated %}
+				<li class="nav-item">
+					<a class="nav-link" href="{{ url_for('logout') }}">Выйти</a>
+				</li>
+				{% endif %}
+			</ul>
+		{% endblock %}
+        {% block content %}{% endblock %}
+
+        {% block scripts %}
+            <!-- Optional JavaScript -->
+            {{ bootstrap.load_js() }}
+        {% endblock %}
+    </body>
+</html>

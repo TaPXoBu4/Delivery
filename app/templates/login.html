@@ -1,0 +1,7 @@
+{% extends '/base.html' %}
+{% from 'bootstrap5/form.html' import render_form %}
+
+{% block content %}
+	{{ render_form(form) }}
+	<p><a href="{{ url_for('register') }}">Стать курьером</a></p>
+{% endblock %}
