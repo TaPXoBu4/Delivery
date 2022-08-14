@@ -3,8 +3,8 @@ from flask_login import current_user, login_required, login_user, logout_user
 from werkzeug.urls import url_parse
 
 from app import app, db
-from app.forms import LoginForm, RegistrationForm
-from app.models import Courier
+from app.forms import LoginForm, OrderForm, RegistrationForm
+from app.models import Courier, Order
 
 
 @app.route('/index')
@@ -49,3 +49,18 @@ def register():
         return redirect(url_for('login'))
     return render_template('register.html',
             form=form)
+
+@app.route('/edit_order', methods=['GET', 'POST'])
+def edit_order():
+    form = OrderForm()
+    if form.validate_on_submit():
+        order = Order(
+                address=form.address.data,
+                location=form.location.data,
+                price=form.price.data,
+                pay_type=form.pay_type.data,
+                driver=current_user)
+        db.session.add(order)
+        db.session.commit()
+    return render_template('edit_order.html', form=form)
+

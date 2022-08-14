@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import date
 from hashlib import md5
 from werkzeug.security import check_password_hash, generate_password_hash
 from flask_login import UserMixin
@@ -24,7 +24,9 @@ def load_user(id):
 class Order(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     address = db.Column(db.String(140))
-    price = db.Column(db.Integer)
     location = db.Column(db.String(64))
+    price = db.Column(db.Integer)
+    pay_type = db.Column(db.String(64))
+    datestamp = db.Column(db.Date, index=True, default=date.today)
     courier_id = db.Column(db.Integer, db.ForeignKey('courier.id'))
 

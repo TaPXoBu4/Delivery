@@ -1,6 +1,7 @@
+from flask.scaffold import F
 from flask_wtf import FlaskForm
-from wtforms import StringField, PasswordField, BooleanField, SubmitField
-from wtforms.validators import DataRequired, Email, EqualTo, ValidationError
+from wtforms import IntegerField, RadioField, StringField, PasswordField, BooleanField, SubmitField
+from wtforms.validators import DataRequired, EqualTo, ValidationError
 
 from app.models import Courier
 
@@ -22,4 +23,11 @@ class RegistrationForm(FlaskForm):
         user = Courier.query.filter_by(username=username.data).first()
         if user is not None:
             raise ValidationError('Пожалуйста, введите другое имя')
+
+class OrderForm(FlaskForm):
+    address = StringField('Адрес', validators=[DataRequired()])
+    location = RadioField('Локация', choices=['По городу', 'Высотка', 'Невон', 'Новый Город', 'ЛПК', 'Тушама'], coerce=str)
+    price = IntegerField('Цена')
+    pay_type = RadioField('Тип Оплаты', choices=['Терминал', 'Наличные', 'Оплачено'])
+    submit = SubmitField('Сохранить')
 
