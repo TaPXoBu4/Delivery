@@ -1,5 +1,7 @@
+from datetime import date
 from flask import flash, redirect, render_template, request, url_for
 from flask_login import current_user, login_required, login_user, logout_user
+from flask_wtf import form
 from werkzeug.urls import url_parse
 
 from app import app, db
@@ -11,7 +13,8 @@ from app.models import Courier, Order
 @app.route('/')
 @login_required
 def index():
-    return render_template('index.html')
+    orders = Order.query.filter_by(driver=current_user).filter_by(datestamp=date.today()).all()
+    return render_template('index.html', orders=orders)
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
@@ -50,8 +53,8 @@ def register():
     return render_template('register.html',
             form=form)
 
-@app.route('/edit_order', methods=['GET', 'POST'])
-def edit_order():
+@app.route('/create_order', methods=['GET', 'POST'])
+def create_order():
     form = OrderForm()
     if form.validate_on_submit():
         order = Order(
@@ -62,5 +65,24 @@ def edit_order():
                 driver=current_user)
         db.session.add(order)
         db.session.commit()
-    return render_template('edit_order.html', form=form)
+    return render_template('create_order.html', form=form)
 
+@app.route('/order/<order_id>', methods=['GET', 'POST'])
+def edit_order(order_id):
+    order = Order.query.filter_by(id=order_id).first()
+    form = OrderForm()
+    if form.validate_on_submit():
+        order.address = form.address.data
+        order.location = form.location.data
+        order.price = form.price.data
+        order.pay_type = form.pay_type.data
+        db.session.commit()
+        flash('Изменения сохранены')
+        return redirect(url_for('index'))
+
+    elif request.method == 'GET':
+        form.address.data = order.address
+        form.location.data = order.location
+        form.price.data = order.price
+        form.pay_type.data = order.pay_type
+    return render_template('order.html', form=form)
