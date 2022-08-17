@@ -5,8 +5,8 @@ from flask_wtf import form
 from werkzeug.urls import url_parse
 
 from app import app, db
-from app.forms import LoginForm, OrderForm, RegistrationForm
-from app.models import Courier, Order
+from app.forms import LoginForm, OrderForm, RateForm, RegistrationForm
+from app.models import Courier, Order, Rates
 
 
 @app.route('/index')
@@ -14,7 +14,10 @@ from app.models import Courier, Order
 @login_required
 def index():
     orders = Order.query.filter_by(driver=current_user).filter_by(datestamp=date.today()).all()
-    return render_template('index.html', orders=orders)
+    rates = Rates.query.first()
+    if not rates:
+        return redirect(url_for('set_rates'))
+    return render_template('index.html', orders=orders, rates=rates)
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
@@ -65,6 +68,7 @@ def create_order():
                 driver=current_user)
         db.session.add(order)
         db.session.commit()
+        return redirect(url_for('index'))
     return render_template('create_order.html', form=form)
 
 @app.route('/order/<order_id>', methods=['GET', 'POST'])
@@ -86,3 +90,21 @@ def edit_order(order_id):
         form.price.data = order.price
         form.pay_type.data = order.pay_type
     return render_template('order.html', form=form)
+
+@app.route('/set_rates', methods=['GET', 'POST'])
+def set_rates():
+   form = RateForm()
+   if form.validate_on_submit():
+       rates = Rates(
+               g=form.g.data,
+               ng=form.ng.data,
+               v=form.v.data,
+               n=form.n.data,
+               t=form.t.data,
+               l=form.l.data
+               )
+       db.session.add(rates)
+       db.session.commit()
+       return redirect(url_for('index'))
+   return render_template('set_rates.html', form=form)
+

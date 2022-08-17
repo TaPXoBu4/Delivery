@@ -1,0 +1,9 @@
+{% extends 'base.html' %}
+{% from 'bootstrap5/form.html' import render_form %}
+
+{% block content %}
+	<h1>Установка тарифов для курьеров</h1>
+	<hr>
+	{{ render_form(form) }}
+{% endblock %}
+

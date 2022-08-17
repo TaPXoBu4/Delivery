@@ -2,7 +2,12 @@
 
 
 {% block content %}
-	{% for order in orders %}
+	{% if orders %}
+		{% for order in orders %}
 		{% include '_order.html' %}
-	{% endfor %}
+		{% endfor %}
+	{% else %}
+		<p>Здесь будут твои заказы</p>
+	{% endif %}
 {% endblock %}
+

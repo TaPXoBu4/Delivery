@@ -1,6 +1,8 @@
 <div>
 	{{ order.address }}, {{ order.location }}, {{order.price}} ₽, {{order.pay_type}}
-	<a class="btn btn-secondary btn-sm" href="{{ url_for('edit_order', order_id=order.id) }}" role="button">Изменить</a>
-	<a class="btn btn-secondary btn-sm" href="#" role="button">Удалить</a>
+	<div>
+		<a class="btn btn-secondary btn-sm" href="{{ url_for('edit_order', order_id=order.id) }}" role="button">Изменить</a>
+		<a class="btn btn-secondary btn-sm" href="#" role="button">Удалить</a>
+	</div>
 </div>
 

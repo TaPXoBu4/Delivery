@@ -1,4 +1,3 @@
-from flask.scaffold import F
 from flask_wtf import FlaskForm
 from wtforms import IntegerField, RadioField, StringField, PasswordField, BooleanField, SubmitField
 from wtforms.validators import DataRequired, EqualTo, ValidationError
@@ -26,8 +25,17 @@ class RegistrationForm(FlaskForm):
 
 class OrderForm(FlaskForm):
     address = StringField('Адрес', validators=[DataRequired()])
-    location = RadioField('Локация', choices=['По городу', 'Высотка', 'Невон', 'Новый Город', 'ЛПК', 'Тушама'], coerce=str)
+    location = RadioField('Локация', choices=['По городу', 'Высотка', 'Невон', 'Новый город', 'ЛПК', 'Тушама'], coerce=str)
     price = IntegerField('Цена')
     pay_type = RadioField('Тип Оплаты', choices=['Терминал', 'Наличные', 'Оплачено'])
     submit = SubmitField('Сохранить')
 
+class RateForm(FlaskForm):
+    g = IntegerField('По городу')
+    ng = IntegerField('Новый город')
+    v = IntegerField('Высотка')
+    n = IntegerField('Невон')
+    t = IntegerField('Тушама')
+    l = IntegerField('ЛПК')
+    submit = SubmitField('Сохранить')
+    

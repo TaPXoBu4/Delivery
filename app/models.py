@@ -1,5 +1,4 @@
 from datetime import date
-from hashlib import md5
 from werkzeug.security import check_password_hash, generate_password_hash
 from flask_login import UserMixin
 
@@ -29,4 +28,24 @@ class Order(db.Model):
     pay_type = db.Column(db.String(64))
     datestamp = db.Column(db.Date, index=True, default=date.today)
     courier_id = db.Column(db.Integer, db.ForeignKey('courier.id'))
+
+class Rates(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    g = db.Column(db.Integer)
+    ng = db.Column(db.Integer)
+    v = db.Column(db.Integer)
+    n = db.Column(db.Integer)
+    t = db.Column(db.Integer)
+    l = db.Column(db.Integer)
+
+    @property
+    def to_dict(self):
+        return {
+                'По городу': self.g,
+                'Новый город': self.ng,
+                'Высотка': self.v,
+                'Невон': self.n,
+                'Тушама': self.t,
+                'ЛПК': self.l
+                }
 
