@@ -1,10 +1,10 @@
 from datetime import date
 from flask import flash, redirect, render_template, request, url_for
 from flask_login import current_user, login_required, login_user, logout_user
-from flask_wtf import form
 from werkzeug.urls import url_parse
 
 from app import app, db
+from app.calculator import calculate_shift
 from app.forms import LoginForm, OrderForm, RateForm, RegistrationForm
 from app.models import Courier, Order, Rates
 
@@ -17,7 +17,8 @@ def index():
     rates = Rates.query.first()
     if not rates:
         return redirect(url_for('set_rates'))
-    return render_template('index.html', orders=orders, rates=rates)
+    shift = calculate_shift()
+    return render_template('index.html', orders=orders, shift=shift)
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():

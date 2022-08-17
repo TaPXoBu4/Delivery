@@ -29,6 +29,7 @@ class Order(db.Model):
     datestamp = db.Column(db.Date, index=True, default=date.today)
     courier_id = db.Column(db.Integer, db.ForeignKey('courier.id'))
 
+
 class Rates(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     g = db.Column(db.Integer)
