@@ -18,6 +18,7 @@ def calculate_shift():
         shift['Заработано'] = shift.get('Заработано', 0) + rates[order.location]
         if order.pay_type == 'Оплачено':
             shift['Количество оплаченных'] = shift.get('Количество оплаченных', 0) + 1
+    shift['Нужно сдать'] = shift['Наличные'] - shift['Заработано']
     
     return shift
 
