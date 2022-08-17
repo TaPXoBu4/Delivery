@@ -5,9 +5,11 @@
 	<h1>Привет, {{ current_user.username }}</h1>
 	<hr>
 	{% block shift %}
+	{% if shift %}
 		{% for key in shift %}
 			<p>{{ key }}: {{ shift[key] }}
 		{% endfor %}
+	{% endif %}
 	{% endblock %}
 	<hr>
 	{% if orders %}
