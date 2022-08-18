@@ -1,3 +1,4 @@
+from datetime import date
 from flask_login import current_user
 
 from app.models import Order, Rates
@@ -6,7 +7,7 @@ from app.models import Order, Rates
 def calculate_shift():
     shift = dict()
     rates = Rates.query.first().to_dict
-    orders = Order.query.filter_by(driver=current_user).all()
+    orders = Order.query.filter_by(driver=current_user).filter_by(datestamp=date.today()).all()
     
     if not orders:
         return
