@@ -1,0 +1,8 @@
+{% extends 'base.html' %}
+{% from 'bootstrap5/form.html' import render_form %}
+
+{% block content %}
+	<h3>Вы точно хотите удалить заказ?</h3>
+	<p>{{ order.address}}, {{ order.price }}</p>
+	{{ render_form(form) }}
+{% endblock %}

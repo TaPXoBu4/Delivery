@@ -39,3 +39,6 @@ class RateForm(FlaskForm):
     l = IntegerField('ЛПК')
     submit = SubmitField('Сохранить')
     
+class DeleteForm(FlaskForm):
+    submit = SubmitField('Удалить')
+

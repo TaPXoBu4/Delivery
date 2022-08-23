@@ -14,11 +14,11 @@ def calculate_shift():
 
     for order in orders:
         shift['Всего заказов'] = len(orders)
-        shift['Общая Сумма'] = shift.get('Общая Сумма', 0) + order.price
         shift[order.pay_type] = shift.get(order.pay_type, 0) + order.price
         shift['Заработано'] = shift.get('Заработано', 0) + rates[order.location]
         if order.pay_type == 'Оплачено':
             shift['Количество оплаченных'] = shift.get('Количество оплаченных', 0) + 1
+    shift['Общая Сумма'] = shift.get('Наличные', 0) + shift.get('Терминал', 0)
     shift['Нужно сдать'] = shift.get('Наличные', 0) - shift['Заработано']
     
     return shift

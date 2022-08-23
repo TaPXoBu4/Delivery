@@ -5,7 +5,7 @@ from werkzeug.urls import url_parse
 
 from app import app, db
 from app.calculator import calculate_shift
-from app.forms import LoginForm, OrderForm, RateForm, RegistrationForm
+from app.forms import DeleteForm, LoginForm, OrderForm, RateForm, RegistrationForm
 from app.models import Courier, Order, Rates
 
 
@@ -108,4 +108,14 @@ def set_rates():
        db.session.commit()
        return redirect(url_for('index'))
    return render_template('set_rates.html', form=form)
+
+@app.route('/delete_order/<order_id>', methods=['GET', 'POST'])
+def delete_order(order_id):
+    form = DeleteForm()
+    order = Order.query.filter_by(id=order_id).first()
+    if form.validate_on_submit():
+        db.session.delete(order)
+        db.session.commit()
+        return redirect(url_for('index'))
+    return render_template('delete_order.html', form=form, order=order)
 
