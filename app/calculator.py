@@ -1,7 +1,7 @@
 from datetime import date
 from flask_login import current_user
 
-from app.models import Order, Location
+from app.models import Order, Location, Payment
 
 
 def calculate_courier_shift():
@@ -23,4 +23,14 @@ def calculate_courier_shift():
     return shift
 
 def get_locations():
-    return [l.area for l in Location.query.all()]
+    try:
+        return [l.area for l in Location.query.all()]
+    except:
+        return []
+
+def get_payments():
+    try:
+        return [p.type for p in Payment.query.all()]
+    except:
+        return []
+

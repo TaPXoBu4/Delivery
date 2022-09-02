@@ -2,8 +2,8 @@ from flask_wtf import FlaskForm
 from wtforms import IntegerField, StringField, PasswordField, BooleanField, SubmitField, SelectField
 from wtforms.validators import DataRequired, EqualTo, ValidationError
 
-from app.models import Courier, Location, Payment
-from app.calculator import get_locations
+from app.models import Courier
+from app.calculator import get_locations, get_payments
 
 
 
@@ -29,7 +29,7 @@ class OrderForm(FlaskForm):
     address = StringField('Адрес', validators=[DataRequired()])
     location = SelectField('Локация', choices=get_locations(), coerce=str)
     price = IntegerField('Цена')
-    pay_type = SelectField('Тип Оплаты', choices=[p.type for p in Payment.query.all()])
+    pay_type = SelectField('Тип Оплаты', choices=get_payments(), coerce=str)
     submit = SubmitField('Сохранить')
 
 class LocationForm(FlaskForm):

@@ -9,7 +9,7 @@ class Courier(UserMixin, db.Model):
     username = db.Column(db.String(64), index=True, unique=True)
     password_hash = db.Column(db.String(128))
     is_admin = db.Column(db.Boolean)
-    orders = db.relationship('Order', backref='courier', lazy='dynamic')
+    __orders = db.relationship('Order', backref='courier', lazy='dynamic')
 
     def set_password(self, password):
         self.password_hash = generate_password_hash(password)
@@ -41,7 +41,7 @@ class Location(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     area = db.Column(db.String(64), unique=True, index=True)
     price = db.Column(db.Integer)
-    orders = db.relationship('Order', backref='location', lazy='dynamic')
+    __orders = db.relationship('Order', backref='location', lazy='dynamic')
 
     def __repr__(self):
         return self.area
@@ -49,7 +49,7 @@ class Location(db.Model):
 class Payment(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     type = db.Column(db.String(64), unique=True, index=True)
-    orders = db.relationship('Order', backref='payment', lazy='dynamic')
+    __orders = db.relationship('Order', backref='payment', lazy='dynamic')
 
     def __repr__(self):
         return self.type
