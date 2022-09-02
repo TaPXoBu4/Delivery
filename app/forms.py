@@ -1,8 +1,10 @@
 from flask_wtf import FlaskForm
-from wtforms import IntegerField, RadioField, StringField, PasswordField, BooleanField, SubmitField
+from wtforms import IntegerField, StringField, PasswordField, BooleanField, SubmitField, SelectField
 from wtforms.validators import DataRequired, EqualTo, ValidationError
 
-from app.models import Courier
+from app.models import Courier, Location, Payment
+from app.calculator import get_locations
+
 
 
 class LoginForm(FlaskForm):
@@ -25,18 +27,14 @@ class RegistrationForm(FlaskForm):
 
 class OrderForm(FlaskForm):
     address = StringField('Адрес', validators=[DataRequired()])
-    location = RadioField('Локация', choices=['По городу', 'Высотка', 'Невон', 'Новый город', 'ЛПК', 'Тушама'], coerce=str)
+    location = SelectField('Локация', choices=get_locations(), coerce=str)
     price = IntegerField('Цена')
-    pay_type = RadioField('Тип Оплаты', choices=['Терминал', 'Наличные', 'Оплачено'])
+    pay_type = SelectField('Тип Оплаты', choices=[p.type for p in Payment.query.all()])
     submit = SubmitField('Сохранить')
 
-class RateForm(FlaskForm):
-    g = IntegerField('По городу')
-    ng = IntegerField('Новый город')
-    v = IntegerField('Высотка')
-    n = IntegerField('Невон')
-    t = IntegerField('Тушама')
-    l = IntegerField('ЛПК')
+class LocationForm(FlaskForm):
+    area = StringField('Локация', validators=[DataRequired()])
+    price = IntegerField('Стоимость доставки', validators=[DataRequired()])
     submit = SubmitField('Сохранить')
     
 class DeleteForm(FlaskForm):

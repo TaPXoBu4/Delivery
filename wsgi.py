@@ -1,5 +1,5 @@
 from app import app, db
-from app.models import Courier, Order, Rates
+from app.models import Courier, Order, Location, Payment
 
 @app.shell_context_processor
 def make_shell_context():
@@ -7,6 +7,6 @@ def make_shell_context():
             'db': db,
             'Courier': Courier,
             'Order': Order,
-            'Rates': Rates
+            'Location': Location,
+            'Payment': Payment
             }
-

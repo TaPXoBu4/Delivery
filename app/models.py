@@ -8,7 +8,8 @@ class Courier(UserMixin, db.Model):
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(64), index=True, unique=True)
     password_hash = db.Column(db.String(128))
-    orders = db.relationship('Order', backref='driver', lazy='dynamic')
+    is_admin = db.Column(db.Boolean)
+    orders = db.relationship('Order', backref='courier', lazy='dynamic')
 
     def set_password(self, password):
         self.password_hash = generate_password_hash(password)
@@ -26,30 +27,29 @@ def load_user(id):
 class Order(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     address = db.Column(db.String(140))
-    location = db.Column(db.String(64))
+    location_id = db.Column(db.Integer, db.ForeignKey('location.id'))
     price = db.Column(db.Integer)
-    pay_type = db.Column(db.String(64))
+    pay_type_id = db.Column(db.Integer, db.ForeignKey('payment.id'))
     datestamp = db.Column(db.Date, index=True, default=date.today)
     courier_id = db.Column(db.Integer, db.ForeignKey('courier.id'))
+    
+    def  __repr__(self):
+        return f'{self.address,}, {self.price}'
 
 
-class Rates(db.Model):
+class Location(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    g = db.Column(db.Integer)
-    ng = db.Column(db.Integer)
-    v = db.Column(db.Integer)
-    n = db.Column(db.Integer)
-    t = db.Column(db.Integer)
-    l = db.Column(db.Integer)
+    area = db.Column(db.String(64), unique=True, index=True)
+    price = db.Column(db.Integer)
+    orders = db.relationship('Order', backref='location', lazy='dynamic')
 
-    @property
-    def to_dict(self):
-        return {
-                'По городу': self.g,
-                'Новый город': self.ng,
-                'Высотка': self.v,
-                'Невон': self.n,
-                'Тушама': self.t,
-                'ЛПК': self.l
-                }
+    def __repr__(self):
+        return self.area
 
+class Payment(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    type = db.Column(db.String(64), unique=True, index=True)
+    orders = db.relationship('Order', backref='payment', lazy='dynamic')
+
+    def __repr__(self):
+        return self.type

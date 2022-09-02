@@ -2,22 +2,20 @@ from datetime import date
 from flask import flash, redirect, render_template, request, url_for
 from flask_login import current_user, login_required, login_user, logout_user
 from werkzeug.urls import url_parse
+from flask_admin import AdminIndexView
 
 from app import app, db
-from app.calculator import calculate_shift
-from app.forms import DeleteForm, LoginForm, OrderForm, RateForm, RegistrationForm
-from app.models import Courier, Order, Rates
+from app.calculator import calculate_courier_shift
+from app.forms import DeleteForm, LoginForm, OrderForm, LocationForm, RegistrationForm
+from app.models import Courier, Order, Location, Payment
 
 
 @app.route('/index')
 @app.route('/')
 @login_required
 def index():
-    orders = Order.query.filter_by(driver=current_user).filter_by(datestamp=date.today()).all()
-    rates = Rates.query.first()
-    if not rates:
-        return redirect(url_for('set_rates'))
-    shift = calculate_shift()
+    shift = calculate_courier_shift()
+    orders = Order.query.filter_by(courier=current_user).filter_by(datestamp=date.today()).all()
     return render_template('index.html', orders=orders, shift=shift)
 
 @app.route('/login', methods=['GET', 'POST'])
@@ -63,12 +61,13 @@ def create_order():
     if form.validate_on_submit():
         order = Order(
                 address=form.address.data,
-                location=form.location.data,
+                location=Location.query.filter_by(area=form.location.data).first(),
                 price=form.price.data,
-                pay_type=form.pay_type.data,
-                driver=current_user)
+                payment= Payment.query.filter_by(type=form.pay_type.data).first(),
+                courier=current_user)
         db.session.add(order)
         db.session.commit()
+        flash('Заказ создан')
         return redirect(url_for('index'))
     return render_template('create_order.html', form=form)
 
@@ -78,36 +77,38 @@ def edit_order(order_id):
     form = OrderForm()
     if form.validate_on_submit():
         order.address = form.address.data
-        order.location = form.location.data
+        order.location = Location.query.filter_by(area=form.location.data).first()
         order.price = form.price.data
-        order.pay_type = form.pay_type.data
+        order.payment= Payment.query.filter_by(type=form.pay_type.data).first()
         db.session.commit()
         flash('Изменения сохранены')
         return redirect(url_for('index'))
 
     elif request.method == 'GET':
         form.address.data = order.address
-        form.location.data = order.location
+        form.location.data = order.location.area
         form.price.data = order.price
-        form.pay_type.data = order.pay_type
+        form.pay_type.data = order.payment.type
     return render_template('order.html', form=form)
 
-@app.route('/set_rates', methods=['GET', 'POST'])
-def set_rates():
-   form = RateForm()
+@app.route('/locations', methods=['GET', 'POST'])
+def locations():
+    locations = Location.query.all()
+    return render_template('locations.html', locations=locations)
+
+
+@app.route('/set_location', methods=['GET', 'POST'])
+def set_location():
+   form = LocationForm()
    if form.validate_on_submit():
-       rates = Rates(
-               g=form.g.data,
-               ng=form.ng.data,
-               v=form.v.data,
-               n=form.n.data,
-               t=form.t.data,
-               l=form.l.data
-               )
-       db.session.add(rates)
+       location = Location(
+                area=form.area.data,
+                price=form.price.data
+       )
+       db.session.add(location)
        db.session.commit()
-       return redirect(url_for('index'))
-   return render_template('set_rates.html', form=form)
+       return redirect(url_for('locations'))
+   return render_template('set_location.html', form=form)
 
 @app.route('/delete_order/<order_id>', methods=['GET', 'POST'])
 def delete_order(order_id):

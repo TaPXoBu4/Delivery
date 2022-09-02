@@ -1,0 +1,14 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<h1>Тарифы для курьеров</h1>
+<a class="btn btn-info" href="{{ url_for('set_location') }}" role="button">Создать тариф</a>
+<hr>
+{% if locations %}
+<ul>
+    {% for l in locations %}
+        <li>{{ l.area }}: {{ l.price }}</li>
+    {% endfor %}
+</ul>
+    {% endif %}
+{% endblock %}
