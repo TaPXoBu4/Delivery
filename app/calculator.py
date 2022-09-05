@@ -35,7 +35,3 @@ def get_payments():
         return [p.type for p in Payment.query.all()]
     except:
         return []
-<<<<<<< HEAD
-=======
-
->>>>>>> refs/remotes/origin/main

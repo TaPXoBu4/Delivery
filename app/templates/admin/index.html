@@ -3,6 +3,7 @@
 {% set term = [] %}
 {% set cach = [] %}
 {% set all_orders = [] %}
+{% set paid = [] %}
 
 {% block body %}
 	{% for courier in couriers %}
@@ -24,6 +25,9 @@
 
 		{% do all_orders.append(shift['Всего заказов']) %}
 
+		{% if shift['Оплачено'] %}
+		{% do paid.append(shift['Оплачено']) %}
+		{% endif %}
 
 	{% endif %}
 	{% endfor %}
@@ -32,5 +36,7 @@
 	<p>Всего заказов: {{ all_orders|sum }} шт.</p>
 	<p>Терминал: {{ term|sum }} ₽</p>
 	<p>Наличные: {{ cach|sum }} ₽</p>
+	<p>Оплачено: {{ paid|sum }} ₽</p>
+	<p>Общая Сумма: {{ term|sum + cach|sum + paid|sum }} ₽</p>
 {% endblock %}
 
