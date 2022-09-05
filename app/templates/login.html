@@ -3,5 +3,6 @@
 
 {% block content %}
 	{{ render_form(form) }}
-	<p><a href="{{ url_for('register') }}">Стать курьером</a></p>
+	<hr>
+	<p>Ещё не с нами? <a href="{{ url_for('register') }}">Регистрируйся!</a></p>
 {% endblock %}

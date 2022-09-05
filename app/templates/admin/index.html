@@ -1,6 +1,36 @@
 {% extends 'admin/master.html' %}
 
+{% set term = [] %}
+{% set cach = [] %}
+{% set all_orders = [] %}
+
 {% block body %}
-  <p>Hello world</p>
+	{% for courier in couriers %}
+	
+	{% set shift =  check(courier) %}
+	{% if shift %}
+		<h4>{{ courier }}</h4>
+		{{ shift }}
+		
+		{%if shift['Терминал'] %}
+		{% do term.append(shift['Терминал']) %}
+		{% endif %}
+
+		{%if shift['Нужно сдать'] %}
+		{% do cach.append(shift['Нужно сдать']) %}
+		{%elif shift['Наличные'] %}
+		{% do cach.append(shift['Наличные']) %}
+		{% endif %}
+
+		{% do all_orders.append(shift['Всего заказов']) %}
+
+
+	{% endif %}
+	{% endfor %}
+	<hr>
+	<h2>Итого:</h2>
+	<p>Всего заказов: {{ all_orders|sum }} шт.</p>
+	<p>Терминал: {{ term|sum }} ₽</p>
+	<p>Наличные: {{ cach|sum }} ₽</p>
 {% endblock %}
 

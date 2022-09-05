@@ -4,7 +4,7 @@ from flask_login import current_user, login_required, login_user, logout_user
 from werkzeug.urls import url_parse
 from flask_admin import AdminIndexView
 
-from app import app, db
+from app import app, db, admin
 from app.calculator import calculate_courier_shift
 from app.forms import DeleteForm, LoginForm, OrderForm, LocationForm, RegistrationForm
 from app.models import Courier, Order, Location, Payment
@@ -14,7 +14,9 @@ from app.models import Courier, Order, Location, Payment
 @app.route('/')
 @login_required
 def index():
-    shift = calculate_courier_shift()
+    if current_user.is_admin:
+        return redirect(url_for('admin.index'))
+    shift = calculate_courier_shift(current_user)
     orders = Order.query.filter_by(courier=current_user).filter_by(datestamp=date.today()).all()
     return render_template('index.html', orders=orders, shift=shift)
 

@@ -18,7 +18,7 @@ class Courier(UserMixin, db.Model):
         return check_password_hash(self.password_hash, password)
 
     def __repr__(self) -> str:
-        return f'{self.username}[{self.id}]'
+        return self.username
 
 @login.user_loader
 def load_user(id):
@@ -41,7 +41,7 @@ class Location(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     area = db.Column(db.String(64), unique=True, index=True)
     price = db.Column(db.Integer)
-    orders = db.relationship('Order', backref='location', lazy='dynamic')
+    __orders = db.relationship('Order', backref='location', lazy='dynamic')
 
     def __repr__(self):
         return self.area
@@ -49,7 +49,7 @@ class Location(db.Model):
 class Payment(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     type = db.Column(db.String(64), unique=True, index=True)
-    orders = db.relationship('Order', backref='payment', lazy='dynamic')
+    __orders = db.relationship('Order', backref='payment', lazy='dynamic')
 
     def __repr__(self):
         return self.type
