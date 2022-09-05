@@ -9,7 +9,7 @@ class Courier(UserMixin, db.Model):
     username = db.Column(db.String(64), index=True, unique=True)
     password_hash = db.Column(db.String(128))
     is_admin = db.Column(db.Boolean)
-    orders = db.relationship('Order', backref='courier', lazy='dynamic')
+    __orders = db.relationship('Order', backref='courier', lazy='dynamic')
 
     def set_password(self, password):
         self.password_hash = generate_password_hash(password)

@@ -2,7 +2,11 @@ from flask_wtf import FlaskForm
 from wtforms import IntegerField, StringField, PasswordField, BooleanField, SubmitField, SelectField
 from wtforms.validators import DataRequired, EqualTo, ValidationError
 
+<<<<<<< HEAD
 from app.models import Courier, Location, Payment
+=======
+from app.models import Courier
+>>>>>>> refs/remotes/origin/main
 from app.calculator import get_locations, get_payments
 
 
