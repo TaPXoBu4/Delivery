@@ -7,6 +7,7 @@ from flask_admin import Admin, AdminIndexView, expose
 from flask_admin.contrib.sqla import ModelView
 from flask_babelex import Babel
 from datetime import date
+from wtforms.validators import DataRequired
 
 from config import Config
 
@@ -63,7 +64,11 @@ class OrderView(MyModelView):
             payment=u'Вид Оплаты')
     form_excluded_columns = ['datestamp']
     column_filters = ['datestamp', 'courier.username']
-    can_view_details = True
+    form_args = {
+    'courier': {'validators': [DataRequired()]},
+    'price': {'validators': [DataRequired()]}, 
+    'payment': {'validators': [DataRequired()]}
+}
 
 class LocationsView(MyModelView):
     column_labels = dict(

@@ -14,12 +14,11 @@ def calculate_courier_shift(courier):
     for order in orders:
         shift['Всего заказов'] = len(orders)
         shift[order.payment.type] = shift.get(order.payment.type, 0) + order.price
-        
         if order.payment.type == 'Оплачено':
             shift['Количество оплаченных'] = shift.get('Количество оплаченных', 0) + 1
-    shift['Общая Сумма'] = sum(o.price for o in orders)
+    shift['Общая Сумма'] = sum(o.price for o in orders if o.price)
     if courier.username != 'Самовывоз':
-        shift['Заработано'] = sum(o.location.price for o in orders)
+        shift['Заработано'] = sum(o.location.price for o in orders if o.location)
         shift['Нужно сдать'] = shift.get('Наличные', 0) - shift['Заработано']
     
     return shift
