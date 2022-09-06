@@ -81,7 +81,12 @@ class PaymentsView(MyModelView):
             type=u'Вид Оплаты'
             )
 
+class CourierView(MyModelView):
+    can_create = False
+    can_edit = False
+    column_exclude_list = ['password_hash', ]
+
 admin.add_view(OrderView(models.Order, db.session, name='Заказы'))
 admin.add_view(LocationsView(models.Location, db.session, name='Тарифы курьеров'))
 admin.add_view(PaymentsView(models.Payment, db.session, name='Типы оплаты'))
-admin.add_view(MyModelView(models.Courier, db.session, name='Курьеры'))
+admin.add_view(CourierView(models.Courier, db.session, name='Курьеры'))
