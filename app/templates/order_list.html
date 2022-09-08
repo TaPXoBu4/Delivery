@@ -1,0 +1,23 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<ul>
+    {% for c in list %}
+    <li><h3>{{ c }}</h3></li>
+    <ol>
+        {% for l in list[c] %}
+        <li>
+            <p>
+                {% if l.address %}
+                {{ l.address }},
+                {% endif %}
+                {{ l.price }}, {{ l.payment.type }}
+            </p>
+        </li>
+        {% endfor %}
+    </ol>
+    {% endfor %}
+</ul>
+
+{% endblock %}

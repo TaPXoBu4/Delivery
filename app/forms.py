@@ -1,5 +1,5 @@
 from flask_wtf import FlaskForm
-from wtforms import IntegerField, StringField, PasswordField, BooleanField, SubmitField, SelectField
+from wtforms import IntegerField, StringField, PasswordField, BooleanField, SubmitField, RadioField, SelectField
 from wtforms.validators import DataRequired, EqualTo, ValidationError
 
 from app.models import Courier, Location, Payment
@@ -40,3 +40,7 @@ class LocationForm(FlaskForm):
 class DeleteForm(FlaskForm):
     submit = SubmitField('Удалить')
 
+class SimpleOrderForm(FlaskForm):
+    price = IntegerField('Цена')
+    pay_type = RadioField('Тип Оплаты', choices=get_payments(), coerce=str)
+    submit = SubmitField('Сохранить')

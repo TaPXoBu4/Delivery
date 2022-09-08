@@ -20,6 +20,7 @@ def calculate_courier_shift(courier):
     if courier.username != 'Самовывоз':
         shift['Заработано'] = sum(o.location.price for o in orders if o.location)
         shift['Нужно сдать'] = shift.get('Наличные', 0) - shift['Заработано']
+        shift['Общая БЕЗ ОПЛАЧЕННЫХ'] = shift['Общая Сумма'] - shift.get('Оплачено', 0)
     
     return shift
 

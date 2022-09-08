@@ -6,7 +6,7 @@ from flask_admin import AdminIndexView
 
 from app import app, db, admin
 from app.calculator import calculate_courier_shift
-from app.forms import DeleteForm, LoginForm, OrderForm, LocationForm, RegistrationForm
+from app.forms import DeleteForm, LoginForm, OrderForm, LocationForm, RegistrationForm, SimpleOrderForm
 from app.models import Courier, Order, Location, Payment
 
 
@@ -122,3 +122,27 @@ def delete_order(order_id):
         return redirect(url_for('index'))
     return render_template('delete_order.html', form=form, order=order)
 
+@app.route('/simple_order', methods=['GET', 'POST'])
+def simple_order():
+    form = SimpleOrderForm()
+    if form.validate_on_submit():
+        order = Order(
+            price=form.price.data,
+            payment= Payment.query.filter_by(type=form.pay_type.data).first(),
+            courier= Courier.query.filter_by(username='Самовывоз').first()
+        )
+        db.session.add(order)
+        db.session.commit()
+        flash('Заказ добавлен')
+        return redirect(url_for('admin.index'))
+    return render_template('create_order.html', form=form)
+
+@app.route('/order_list')
+def order_list():
+    list = {}
+    couriers = Courier.query.all()
+    for crr in couriers:
+        orders = Order.query.filter_by(courier=crr).filter_by(datestamp=date.today()).all()
+        if orders:
+            list[crr] = orders
+    return render_template('order_list.html', list=list)
