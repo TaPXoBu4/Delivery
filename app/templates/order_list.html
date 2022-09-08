@@ -15,6 +15,14 @@
                 {{ l.price }}, {{ l.payment.type }}
             </p>
         </li>
+        
+        {% if current_user.is_admin %}
+        {% if c|lower == 'самовывоз' %}
+        <a class="btn btn-secondary btn-sm" href="{{ url_for('edit_simple', order_id=l.id) }}" role="button">Изменить</a>
+        <a class="btn btn-danger btn-sm" href="{{ url_for('delete_order', order_id=l.id) }}" role="button">Удалить</a>
+        {% endif %}
+        {% endif %}
+        
         {% endfor %}
     </ol>
     {% endfor %}

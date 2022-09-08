@@ -71,7 +71,7 @@ def create_order():
         db.session.commit()
         flash('Заказ создан')
         return redirect(url_for('index'))
-    return render_template('create_order.html', form=form)
+    return render_template('order.html', form=form)
 
 @app.route('/order/<order_id>', methods=['GET', 'POST'])
 def edit_order(order_id):
@@ -135,7 +135,7 @@ def simple_order():
         db.session.commit()
         flash('Заказ добавлен')
         return redirect(url_for('admin.index'))
-    return render_template('create_order.html', form=form)
+    return render_template('order.html', form=form)
 
 @app.route('/order_list')
 def order_list():
@@ -146,3 +146,19 @@ def order_list():
         if orders:
             list[crr] = orders
     return render_template('order_list.html', list=list)
+
+@app.route('/edit_simple/<order_id>', methods=['GET', 'POST'])
+def edit_simple(order_id):
+    order = Order.query.filter_by(id=order_id).first()
+    form = SimpleOrderForm()
+    if form.validate_on_submit():
+        order.price = form.price.data
+        order.payment= Payment.query.filter_by(type=form.pay_type.data).first()
+        db.session.commit()
+        flash('Изменения сохранены')
+        return redirect(url_for('order_list'))
+
+    elif request.method == 'GET':
+        form.price.data = order.price
+        form.pay_type.data = order.payment.type
+        return render_template('order.html', form=form)

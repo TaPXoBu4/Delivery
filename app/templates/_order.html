@@ -1,8 +1,8 @@
 <div>
-	{{ order.address }}, {{ order.location.area }}, {{order.price}} ₽, {{order.payment.type}}
 	<li>
-		<a class="btn btn-secondary btn-sm" href="{{ url_for('edit_order', order_id=order.id) }}" role="button">Изменить</a>
-		<a class="btn btn-danger btn-sm" href="{{ url_for('delete_order', order_id=order.id) }}" role="button">Удалить</a>
+		{{ order.address }}, {{ order.location.area }}, {{order.price}} ₽, {{order.payment.type}}
 	</li>
-		</div>
+	<a class="btn btn-secondary btn-sm" href="{{ url_for('edit_order', order_id=order.id) }}" role="button">Изменить</a>
+	<a class="btn btn-danger btn-sm" href="{{ url_for('delete_order', order_id=order.id) }}" role="button">Удалить</a>
+</div>
 
