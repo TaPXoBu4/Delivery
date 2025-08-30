@@ -1,0 +1,7 @@
+{% extends "base.html" %}
+{% block content %}
+<h1> Привет, {{ current_user.name }} !</h1>
+{% if shift%}
+{% include "shift.html" %}
+{% endif %}
+{% endblock %}
