@@ -1,10 +1,16 @@
-from datetime import datetime
+from datetime import date, datetime
 from enum import StrEnum
 from typing import Optional, Text
 
 from flask_login import UserMixin
-from sqlalchemy import Enum, ForeignKey
-from sqlalchemy.orm import Mapped, WriteOnlyMapped, mapped_column, relationship
+from sqlalchemy import Enum, ForeignKey, func
+from sqlalchemy.orm import (
+    AppenderQuery,
+    Mapped,
+    WriteOnlyMapped,
+    mapped_column,
+    relationship,
+)
 from werkzeug.security import check_password_hash, generate_password_hash
 
 from app import db, login
@@ -23,13 +29,18 @@ class User(UserMixin, db.Model):
     name: Mapped[str] = mapped_column(index=True, unique=True)
     is_admin: Mapped[bool] = mapped_column(default=False)
     pass_hash: Mapped[Optional[str]]
-    orders: WriteOnlyMapped["Order"] = relationship(back_populates="courier")
+    orders: Mapped["AppenderQuery[Order]"] = relationship(
+        back_populates="courier", lazy="dynamic"
+    )
 
     def set_password(self, password):
         self.pass_hash = generate_password_hash(password)
 
     def check_password(self, password):
         return check_password_hash(self.pass_hash, password)
+
+    def get_orders(self, day: date):
+        return self.orders.where(func.date(Order.timestamp) == day)
 
     def __repr__(self) -> str:
         return f"<User {self.name}>"
@@ -46,7 +57,9 @@ class Area(db.Model):
     id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
     name: Mapped[str] = mapped_column(unique=True)
     tariff: Mapped[int] = mapped_column(nullable=True)
-    orders: WriteOnlyMapped["Order"] = relationship(back_populates="area")
+    orders: WriteOnlyMapped["Order"] = relationship(
+        back_populates="area", lazy="dynamic"
+    )
 
 
 class Order(db.Model):

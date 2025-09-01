@@ -1,3 +1,4 @@
+from datetime import date
 from urllib.parse import urlsplit
 
 from flask import flash, redirect, render_template, request, url_for
@@ -14,7 +15,8 @@ from app.models import User
 @login_required
 def index():
     shift = None
-    return render_template("index.html", title="Home", shift=shift)
+    orders = current_user.get_orders(date.today())
+    return render_template("index.html", title="Home", shift=shift, orders=orders)
 
 
 @app.route("/login", methods=["GET", "POST"])
