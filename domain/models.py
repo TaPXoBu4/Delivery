@@ -1,19 +1,8 @@
-from datetime import date, datetime
+from dataclasses import dataclass
+from datetime import datetime
 from enum import StrEnum
-from typing import Optional, Text
 
-from flask_login import UserMixin
-from sqlalchemy import Enum, ForeignKey, func
-from sqlalchemy.orm import (
-    AppenderQuery,
-    Mapped,
-    WriteOnlyMapped,
-    mapped_column,
-    relationship,
-)
 from werkzeug.security import check_password_hash, generate_password_hash
-
-from app import db, login
 
 
 class Payments(StrEnum):
@@ -22,57 +11,33 @@ class Payments(StrEnum):
     PAID = "оплачено"
 
 
-class User(UserMixin, db.Model):
-    __tablename__ = "users"
+@dataclass
+class User:
+    id: int
+    name: str
+    password: str
+    is_admin: bool
 
-    id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
-    name: Mapped[str] = mapped_column(index=True, unique=True)
-    is_admin: Mapped[bool] = mapped_column(default=False)
-    pass_hash: Mapped[Optional[str]]
-    orders: Mapped["AppenderQuery[Order]"] = relationship(
-        back_populates="courier", lazy="dynamic"
-    )
+    def set_password(self, passwd):
+        self.password = generate_password_hash(passwd)
 
-    def set_password(self, password):
-        self.pass_hash = generate_password_hash(password)
-
-    def check_password(self, password):
-        return check_password_hash(self.pass_hash, password)
-
-    def get_orders(self, day: date):
-        return self.orders.where(func.date(Order.timestamp) == day)
-
-    def __repr__(self) -> str:
-        return f"<User {self.name}>"
+    def check_password(self, passwd):
+        return check_password_hash(self.password, passwd)
 
 
-@login.user_loader
-def load_user(id):
-    return db.session.get(User, int(id))
+@dataclass
+class Order:
+    id: int
+    address: str | None
+    location: str | None
+    payment: Payments
+    delivery_cost: int | None
+    timestamp: datetime
+    courier: str | None
+    price: int
 
 
-class Area(db.Model):
-    __tablename__ = "areas"
-
-    id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
-    name: Mapped[str] = mapped_column(unique=True)
-    tariff: Mapped[int] = mapped_column(nullable=True)
-    orders: WriteOnlyMapped["Order"] = relationship(
-        back_populates="area", lazy="dynamic"
-    )
-
-
-class Order(db.Model):
-    __tablename__ = "orders"
-
-    id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
-    timestamp: Mapped[datetime] = mapped_column(
-        index=True, default=lambda: datetime.now()
-    )
-    payment: Mapped[Payments] = mapped_column(Enum(Payments), name="payment")
-    price: Mapped[Optional[int]] = mapped_column(nullable=True)
-    courier_id: Mapped[Optional[int]] = mapped_column(ForeignKey(User.id))
-    courier: Mapped["User"] = relationship(back_populates="orders")
-    area_id: Mapped[Optional[int]] = mapped_column(ForeignKey(Area.id))
-    area: Mapped["Area"] = relationship(back_populates="orders")
-    address: Mapped[Optional[Text]] = mapped_column(nullable=True)
+@dataclass
+class Location:
+    name: str
+    cost: int
