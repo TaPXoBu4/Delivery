@@ -2,7 +2,7 @@ from collections import defaultdict
 from datetime import date
 from typing import Dict, List
 
-from .models import NewOrder, Order, Payments, User
+from .models import Order, Payments, User
 from .ports import OrderRepo, UserRepo
 
 
@@ -11,23 +11,24 @@ class UseCases:
         self.user_repo = user_repo
         self.order_repo = order_repo
 
-    def add_order(self, order: NewOrder) -> Order:
-        return await self.order_repo.add(order)
+    def add_order(self, order: Order) -> Order:
+        return self.order_repo.add(order)
 
     def get_orders(
         self, date: date | None = None, courier: User | None = None
     ) -> List[Order | None]:
-        return await self.order_repo.get_orders(date=date, courier=courier)
+        return self.order_repo.get_orders(date=date, courier=courier)
 
     def add_user(self, user: User) -> User:
-        return await self.user_repo.add(user)
+        return self.user_repo.add(user)
 
     def get_user(self, login, passwd) -> User:
-        return await self.user_repo.get(login, passwd)
+        return self.user_repo.get(login, passwd)
 
-    def calculate_courier_summary(self, orders: List[Order]) -> Dict:
+    def calculate_courier_summary(self, orders: Dict[str, List[Order]]) -> Dict:
+        courier, orders_list = next(iter(orders.items()))
         summary = {
-            orders[0].courier or "Самовывоз": "",
+            courier: "",
             "Количество заказов": 0,
             "Стоимость всех заказов": 0,
         }
@@ -35,7 +36,7 @@ class UseCases:
         cash_total = 0
         earned = 0
 
-        for order in orders:
+        for order in orders_list:
             summary["Количество заказов"] += 1
             summary[order.payment] = summary.get(order.payment, 0) + order.price
 
@@ -46,12 +47,12 @@ class UseCases:
                 case Payments.CASH:
                     cash_total += order.price
 
-            summary["Стоимость всех заказов курьера"] += order.price
-            earned += order.delivery_cost or 0
+            summary["Стоимость всех заказов"] += order.price
+            earned += order.location.cost if order.location else 0
 
-        if orders[0].courier:
-            summary[f"{orders[0].courier} заработал"] = earned
-            summary[f"{orders[0].courier} должен сдать"] = cash_total - earned
+        if courier != "Самовывоз":
+            summary[f"{courier} заработал"] = earned
+            summary[f"{courier} должен сдать"] = cash_total - earned
 
         if summary[Payments.PAID]:
             del summary[Payments.PAID]
@@ -61,7 +62,8 @@ class UseCases:
     def group_orders_by_couriers(self, orders: List[Order]) -> Dict:
         grouped_orders = defaultdict(list)
         for order in orders:
-            grouped_orders[order.courier].append(order)
+            key = order.courier.name if order.courier else "Самовывоз"
+            grouped_orders[key].append(order)
         return dict(grouped_orders)
 
     def calculate_all_couriers_summary(self, orders: List[Order]) -> List[Dict]:

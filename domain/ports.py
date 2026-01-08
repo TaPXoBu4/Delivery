@@ -1,19 +1,19 @@
 from datetime import date
 from typing import List, Protocol
 
-from domain.models import NewOrder, Order, User
+from .models import Location, Order, User
 
 
 class OrderRepo(Protocol):
-    async def get_all_orders(self, date: date | None = None) -> List[Order | None]: ...
+    def get_one(self, id: int) -> Order: ...
 
-    async def get_orders(
+    def get(
         self,
         date: date | None,
         courier: User | None,
     ) -> List[Order | None]: ...
 
-    def add(self, order: NewOrder) -> Order: ...
+    def add(self, order: Order) -> Order: ...
 
     def update(self, order: Order) -> Order: ...
 
@@ -24,3 +24,9 @@ class UserRepo(Protocol):
     def add(self, user: User) -> User: ...
 
     def get(self, login, passwd) -> User: ...
+
+
+class LocationRepo(Protocol):
+    def get(self, id) -> Location: ...
+
+    def get_all(self) -> List[Location]: ...

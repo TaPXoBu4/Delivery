@@ -26,18 +26,18 @@ class User:
 
 
 @dataclass
-class Order:
+class Location:
     id: int
-    address: str | None
-    location: str | None
-    payment: Payments
-    delivery_cost: int | None
-    timestamp: datetime
-    courier: str | None
-    price: int
+    name: str
+    cost: int
 
 
 @dataclass
-class Location:
-    name: str
-    cost: int
+class Order:
+    id: int
+    address: str | None
+    location: Location | None
+    courier: User | None
+    payment: Payments
+    timestamp: datetime
+    price: int = 0
