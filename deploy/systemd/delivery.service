@@ -1,0 +1,16 @@
+[Unit]
+Description=Delivery web application
+Wants=network-online.target
+After=network-online.target postgresql.service
+
+[Service]
+User=delivery
+Group=delivery
+WorkingDirectory=/srv/delivery/current
+EnvironmentFile=/etc/delivery/delivery.env
+ExecStart=/srv/delivery/current/.venv/bin/gunicorn --workers 3 --bind 127.0.0.1:8000 wsgi:app
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target

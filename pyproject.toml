@@ -11,6 +11,7 @@ dependencies = [
     "flask-admin[sqlalchemy]>=2.0.2",
     "flask-login>=0.6.3",
     "flask-wtf>=1.2.2",
+    "gunicorn>=26.0.0",
     "psycopg2-binary>=2.9.10",
     "psycopg[binary,pool]>=3.3.2",
     "pydantic-settings>=2.12.0",

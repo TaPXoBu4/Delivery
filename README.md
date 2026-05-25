@@ -23,3 +23,11 @@ set the server timezone to Irkutsk:
 ```bash
 sudo timedatectl set-timezone Asia/Irkutsk
 ```
+
+## Production services
+
+Systemd and nginx templates live in `deploy/`:
+
+- `deploy/systemd/delivery.service` runs the web app through Gunicorn.
+- `deploy/systemd/delivery-order-cleanup.*` runs monthly order cleanup.
+- `deploy/nginx/delivery.conf` proxies the Cyrillic domain through nginx.
