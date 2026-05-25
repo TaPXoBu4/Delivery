@@ -194,6 +194,44 @@ class TestAdminBlueprint:
         assert b"14:05" in response.data
         assert b"/admin_panel/delete_order/" in response.data
 
+    def test_order_list_allows_admin_to_delete_courier_order(self, app, client):
+        with app.app_context():
+            app.extensions["use_cases"].orders.today = lambda: date(2026, 5, 25)
+            create_admin_user()
+            courier = DbUser(
+                name="courier",
+                password=WerkzeugPasswordHasher().hash("password123"),
+                is_admin=False,
+            )
+            db.session.add(courier)
+            db.session.flush()
+            order = Order(
+                address="Ленина, 1",
+                price=1500,
+                payment=Payments.CASH,
+                courier_id=courier.id,
+                location_id=None,
+                timestamp=datetime(2026, 5, 25, 14, 5),
+            )
+            db.session.add(order)
+            db.session.commit()
+            order_id = order.id
+
+        login(client)
+        response = client.get("/admin_panel/order_list")
+
+        assert response.status_code == 200
+        assert f"/admin_panel/delete_order/{order_id}".encode() in response.data
+
+        response = client.post(
+            f"/admin_panel/delete_order/{order_id}",
+            follow_redirects=True,
+        )
+
+        assert response.status_code == 200
+        with app.app_context():
+            assert db.session.get(Order, order_id) is None
+
     def test_simple_order_uses_irkutsk_clock(self, app, client, monkeypatch):
         timestamp = datetime(2026, 5, 25, 16, 40)
         monkeypatch.setattr("flask_app.bp.admin_bp.irkutsk_now", lambda: timestamp)

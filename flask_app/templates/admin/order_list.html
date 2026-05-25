@@ -30,8 +30,8 @@
         <div class="ticket-actions">
         {% if courier_name == 'Самовывоз' %}
             <a class="btn btn-secondary btn-sm" href="{{ url_for('admin_panel.edit_simple', order_id=order.id) }}">Изменить</a>
-            <a class="btn btn-danger btn-sm" href="{{ url_for('admin_panel.delete_order', order_id=order.id) }}">Удалить</a>
         {% endif %}
+            <a class="btn btn-danger btn-sm" href="{{ url_for('admin_panel.delete_order', order_id=order.id) }}">Удалить</a>
         </div>
     </li>
     {% endfor %}
