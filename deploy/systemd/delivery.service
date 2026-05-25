@@ -8,7 +8,7 @@ User=delivery
 Group=delivery
 WorkingDirectory=/srv/delivery/current
 EnvironmentFile=/etc/delivery/delivery.env
-ExecStart=/srv/delivery/current/.venv/bin/gunicorn --workers 3 --bind 127.0.0.1:8000 wsgi:app
+ExecStart=/srv/delivery/current/.venv/bin/gunicorn --workers 2 --timeout 60 --max-requests 1000 --max-requests-jitter 100 --bind 127.0.0.1:8000 wsgi:app
 Restart=always
 RestartSec=5
 
