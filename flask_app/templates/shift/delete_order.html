@@ -1,0 +1,15 @@
+{% extends 'base.html' %}
+{% from 'bootstrap5/form.html' import render_form %}
+
+{% block content %}
+<div class="form-shell">
+<h3>Вы точно хотите удалить заказ?</h3>
+<p>
+    {% if order.address %}
+        {{ order.address }},
+    {% endif %}
+    {{ order.price }} ₽
+</p>
+{{ render_form(form) }}
+</div>
+{% endblock %}

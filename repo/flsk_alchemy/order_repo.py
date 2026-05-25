@@ -1,4 +1,5 @@
-from datetime import date, datetime, timedelta
+from datetime import date as dt_date
+from datetime import datetime, timedelta
 
 from flask_sqlalchemy import SQLAlchemy
 
@@ -19,7 +20,7 @@ class FlaskSQLAlchemyOrderRepo(OrderRepo):
     def add(self, order: dOrder) -> dOrder:
         orm_order = self.mapper.to_orm(order)
         self.db.session.add(orm_order)
-        self.db.session.commit()
+        self.db.session.flush()
         order.id = orm_order.id
         return order
 
@@ -27,13 +28,13 @@ class FlaskSQLAlchemyOrderRepo(OrderRepo):
         order = self.db.session.get(oOrder, id)
         return self.mapper.to_domain(order) if order else None
 
-    def get(self, target_date: date | None, courier: dUser | None):
+    def get(self, date: dt_date | None = None, courier: dUser | None = None):
         filters = []
-        target_date = target_date or date.today()
-        start = datetime.combine(target_date, datetime.min.time())
-        end = start + timedelta(hours=20)
+        if date is not None:
+            start = datetime.combine(date, datetime.min.time())
+            end = start + timedelta(hours=24)
+            filters.extend([oOrder.timestamp >= start, oOrder.timestamp < end])
 
-        filters.extend([oOrder.timestamp >= start, oOrder.timestamp < end])
         if courier:
             filters.append(oOrder.courier_id == courier.id)
 
@@ -47,7 +48,7 @@ class FlaskSQLAlchemyOrderRepo(OrderRepo):
             raise OrderNotExists
 
         self.db.session.delete(orm_order)
-        self.db.session.commit()
+        self.db.session.flush()
 
     def update(self, order: dOrder) -> dOrder:
         orm_order = self.db.session.get(oOrder, order.id)
@@ -58,5 +59,5 @@ class FlaskSQLAlchemyOrderRepo(OrderRepo):
         orm_order.location_id = order.location.id if order.location else None
         orm_order.price = order.price
         orm_order.payment = order.payment
-        self.db.session.commit()
+        self.db.session.flush()
         return order

@@ -1,7 +1,48 @@
-{% extends "base.html" %}
+{% extends 'base.html' %}
+
 {% block content %}
-<h1> Привет, {{ current_user.name }} !</h1>
-{% if shift%}
-{% include "shift.html" %}
+<header class="page-header">
+    <div>
+        <h1 class="page-title">Привет, {{ current_user.name }}</h1>
+        <p class="page-subtitle">Твоя смена на сегодня</p>
+    </div>
+    <a class="btn btn-primary" href="{{ url_for('shift.create_order') }}">Создать заказ</a>
+</header>
+
+{% if shift_rows %}
+    <section class="summary-grid" aria-label="Сводка смены">
+        {% for label, value in shift_rows %}
+        <div class="summary-tile">
+            <span class="summary-label">{{ label }}</span>
+            <span class="summary-value">{{ value }}</span>
+        </div>
+        {% endfor %}
+    </section>
+{% endif %}
+
+<h2 class="section-title">Заказы на сегодня</h2>
+{% if orders %}
+<ol class="ticket-list">
+    {% for order in orders %}
+    <li class="order-ticket">
+        <div class="ticket-main">
+            <p class="ticket-address">{{ order.address or 'Самовывоз' }}</p>
+            <div class="ticket-meta">
+                {% if order.location %}
+                    <span class="zone-badge">{{ order.location.name }}</span>
+                {% endif %}
+                <span class="money">{{ order.price }} ₽</span>
+                <span class="payment-badge payment-{{ order.payment.name|lower }}">{{ order.payment.value }}</span>
+            </div>
+        </div>
+        <div class="ticket-actions">
+            <a class="btn btn-secondary btn-sm" href="{{ url_for('shift.edit_order', order_id=order.id) }}">Изменить</a>
+            <a class="btn btn-danger btn-sm" href="{{ url_for('shift.delete_order', order_id=order.id) }}">Удалить</a>
+        </div>
+    </li>
+    {% endfor %}
+</ol>
+{% else %}
+    <div class="empty-state">Здесь будут твои заказы</div>
 {% endif %}
 {% endblock %}

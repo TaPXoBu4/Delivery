@@ -1,0 +1,28 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<header class="page-header">
+    <div>
+        <h1 class="page-title">Тарифы для курьеров</h1>
+        <p class="page-subtitle">Зоны доставки и стоимость выезда</p>
+    </div>
+    <a class="btn btn-primary" href="{{ url_for('admin_panel.set_location') }}" role="button">Создать тариф</a>
+</header>
+
+{% if locations %}
+<ul class="location-list">
+    {% for loc in locations %}
+        <li class="location-row">
+            <span class="location-name">{{ loc.name }}</span>
+            <span class="location-cost">{{ loc.cost }} ₽</span>
+            <span class="ticket-actions">
+                <a class="btn btn-secondary btn-sm" href="{{ url_for('admin_panel.edit_location', location_id=loc.id) }}">Изменить</a>
+                <a class="btn btn-danger btn-sm" href="{{ url_for('admin_panel.delete_location', location_id=loc.id) }}">Удалить</a>
+            </span>
+        </li>
+    {% endfor %}
+</ul>
+{% else %}
+    <div class="empty-state">Тарифы не заданы</div>
+{% endif %}
+{% endblock %}

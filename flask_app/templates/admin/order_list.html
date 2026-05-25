@@ -1,0 +1,40 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<header class="page-header">
+    <div>
+        <h1 class="page-title">Заказы на сегодня</h1>
+        <p class="page-subtitle">Разбивка по курьерам и самовывозу</p>
+    </div>
+</header>
+
+{% for courier_name, orders in grouped.items() %}
+<section class="courier-group">
+<h2 class="courier-heading">{{ courier_name }}</h2>
+<ol class="ticket-list">
+    {% for order in orders %}
+    <li class="order-ticket">
+        <div class="ticket-main">
+            <p class="ticket-address">{{ order.address or 'Самовывоз' }}</p>
+            <div class="ticket-meta">
+                {% if order.location %}
+                    <span class="zone-badge">{{ order.location.name }}</span>
+                {% endif %}
+                <span class="money">{{ order.price }} ₽</span>
+                <span class="payment-badge payment-{{ order.payment.name|lower }}">{{ order.payment.value }}</span>
+            </div>
+        </div>
+        <div class="ticket-actions">
+        {% if courier_name == 'Самовывоз' %}
+            <a class="btn btn-secondary btn-sm" href="{{ url_for('admin_panel.edit_simple', order_id=order.id) }}">Изменить</a>
+            <a class="btn btn-danger btn-sm" href="{{ url_for('admin_panel.delete_order', order_id=order.id) }}">Удалить</a>
+        {% endif %}
+        </div>
+    </li>
+    {% endfor %}
+</ol>
+</section>
+{% else %}
+    <div class="empty-state">Сегодня заказов нет</div>
+{% endfor %}
+{% endblock %}

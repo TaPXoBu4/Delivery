@@ -2,8 +2,6 @@ from dataclasses import dataclass
 from datetime import datetime
 from enum import StrEnum
 
-from werkzeug.security import check_password_hash, generate_password_hash
-
 
 class Payments(StrEnum):
     CASH = "наличные"
@@ -11,33 +9,30 @@ class Payments(StrEnum):
     PAID = "оплачено"
 
 
+PICKUP_COURIER_NAME = "Самовывоз"
+
+
 @dataclass
 class User:
-    id: int
     name: str
-    password: str
-    is_admin: bool
-
-    def set_password(self, passwd):
-        self.password = generate_password_hash(passwd)
-
-    def check_password(self, passwd):
-        return check_password_hash(self.password, passwd)
+    id: int | None = None
+    password: str | None = None
+    is_admin: bool = False
 
 
 @dataclass
 class Location:
-    id: int
     name: str
     cost: int
+    id: int | None = None
 
 
 @dataclass
 class Order:
-    id: int
     address: str | None
     location: Location | None
     courier: User | None
     payment: Payments
     timestamp: datetime
     price: int = 0
+    id: int | None = None

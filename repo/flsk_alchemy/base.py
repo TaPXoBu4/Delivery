@@ -8,3 +8,6 @@ class Base(DeclarativeBase):
 
 def init_db():
     return SQLAlchemy(model_class=Base)
+
+
+db = init_db()

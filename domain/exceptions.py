@@ -2,5 +2,5 @@ class OrderNotExists(Exception):
     pass
 
 
-class UserNotExists(Exception):
+class LocationNotExists(Exception):
     pass

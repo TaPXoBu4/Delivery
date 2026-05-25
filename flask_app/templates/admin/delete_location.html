@@ -1,0 +1,10 @@
+{% extends 'base.html' %}
+{% from 'bootstrap5/form.html' import render_form %}
+
+{% block content %}
+<div class="form-shell">
+<h3>Удалить тариф?</h3>
+<p>{{ location.name }}, {{ location.cost }} ₽</p>
+{{ render_form(form) }}
+</div>
+{% endblock %}

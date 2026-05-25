@@ -1,34 +1,77 @@
 <!doctype html>
-<html>
+<html lang="ru">
+    <head>
+        {% block head %}
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        {% block styles %}
+            {{ bootstrap.load_css() }}
+            <link rel="stylesheet" href="{{ url_for('static', filename='css/app.css') }}">
+        {% endblock %}
+        <title>Доставка</title>
+        {% endblock %}
+    </head>
+    <body>
+        {% block navbar %}
+        <nav class="navbar navbar-expand-md app-navbar">
+            <div class="container">
+                <a class="navbar-brand" href="{{ url_for('shift.index') }}">
+                    <span class="brand-mark" aria-hidden="true"></span>
+                    <span>Кухня доставка</span>
+                </a>
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNavbar" aria-controls="mainNavbar" aria-expanded="false" aria-label="Открыть меню">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="collapse navbar-collapse" id="mainNavbar">
+                    <ul class="navbar-nav me-auto">
+                        {% if current_user.is_authenticated %}
+                            {% if current_user.is_admin %}
+                                <li class="nav-item">
+                                    <a class="nav-link" href="{{ url_for('admin_panel.order_list') }}">Заказы</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link" href="{{ url_for('admin_panel.locations') }}">Тарифы</a>
+                                </li>
+                            {% else %}
+                                <li class="nav-item">
+                                    <a class="nav-link" href="{{ url_for('shift.create_order') }}">Создать заказ</a>
+                                </li>
+                            {% endif %}
+                        {% endif %}
+                    </ul>
+                    <ul class="navbar-nav">
+                        {% if current_user.is_authenticated %}
+                            <li class="nav-item">
+                                <a class="nav-link" href="{{ url_for('auth.logout') }}">Выйти</a>
+                            </li>
+                        {% else %}
+                            <li class="nav-item">
+                                <a class="nav-link" href="{{ url_for('auth.login') }}">Войти</a>
+                            </li>
+                        {% endif %}
+                    </ul>
+                </div>
+            </div>
+        </nav>
+        {% endblock %}
 
-<head>
-  {% if title %}
-  <title>{{ title }}</title>
-  {% else %}
-  <title>Доставка</title>
-  {% endif %}
-</head>
+        <main class="container app-main">
+            {% with messages = get_flashed_messages() %}
+            {% if messages %}
+                {% for message in messages %}
+                <div class="alert alert-info alert-dismissible fade show" role="alert">
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+                {% endfor %}
+            {% endif %}
+            {% endwith %}
 
-<body>
-  <div>
-    <a href="{{ url_for('index') }}">Главная</a>
-    {% if current_user.is_anonymous %}
-    <a href="{{ url_for('login')}}">Войти</a>
-    {% else %}
-    <a href="{{ url_for('logout')}}">Выйти</a>
-    {% endif %}
-  </div>
-  <hr>
-  {% with messages = get_flashed_messages() %}
-  {% if messages %}
-  <ul>
-    {% for message in messages %}
-    <li>{{ message }}</li>
-    {% endfor %}
-  </ul>
-  {% endif %}
-  {% endwith %}
-  {% block content %} {% endblock %}
-</body>
+            {% block content %}{% endblock %}
+        </main>
 
+        {% block scripts %}
+            {{ bootstrap.load_js() }}
+        {% endblock %}
+    </body>
 </html>

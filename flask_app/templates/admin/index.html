@@ -1,0 +1,45 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<header class="page-header">
+    <div>
+        <h1 class="page-title">Панель администратора</h1>
+        <p class="page-subtitle">Сводка кухни и курьеров за сегодня</p>
+    </div>
+    <a class="btn btn-primary" href="{{ url_for('admin_panel.simple_order') }}">Создать самовывоз</a>
+</header>
+
+<h2 class="section-title">Сводка по курьерам</h2>
+{% if summaries %}
+<div class="kitchen-table">
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Курьер</th>
+                <th>Заказов</th>
+                <th>Наличные</th>
+                <th>Терминал</th>
+                <th>Сумма</th>
+                <th>Заработок</th>
+                <th>Должен сдать</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for summary in summaries %}
+                <tr {% if summary.is_total %}class="total-row"{% endif %}>
+                    <td>{{ summary.courier_name }}</td>
+                    <td>{{ summary.orders_count }}</td>
+                    <td>{{ summary.cash_total }} ₽</td>
+                    <td>{{ summary.terminal_total }} ₽</td>
+                    <td>{{ summary.total_price }} ₽</td>
+                    <td>{{ summary.earned }} ₽</td>
+                    <td>{{ summary.to_surrender }} ₽</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% else %}
+    <div class="empty-state">Сегодня заказов нет</div>
+{% endif %}
+{% endblock %}
