@@ -4,6 +4,7 @@ from calendar import monthrange
 from datetime import date, datetime
 
 from .models import Location, Order, PICKUP_COURIER_NAME, Payments, User
+from .exceptions import InvalidPassword, UserNameAlreadyExists, UserNotExists
 from .ports import LocationRepo, OrderRepo, PasswordHasher, UnitOfWork, UserRepo
 from .summaries import ShiftSummary
 
@@ -88,6 +89,11 @@ class UserService:
         self.uow.commit()
         return added
 
+    def update(self, user: User) -> User:
+        updated = self.user_repo.update(user)
+        self.uow.commit()
+        return updated
+
     def register(self, name: str, password: str, is_admin: bool = False) -> User:
         if self.password_hasher is None:
             raise RuntimeError("Password hasher is not configured")
@@ -102,6 +108,34 @@ class UserService:
         if self.password_hasher is None:
             raise RuntimeError("Password hasher is not configured")
         return self.password_hasher.verify(password, user.password)
+
+    def update_profile(
+        self,
+        user_id: int,
+        name: str,
+        current_password: str,
+        new_password: str | None = None,
+    ) -> User:
+        if self.password_hasher is None:
+            raise RuntimeError("Password hasher is not configured")
+
+        user = self.get(user_id)
+        if user is None:
+            raise UserNotExists
+
+        if not self.verify_password(user, current_password):
+            raise InvalidPassword
+
+        clean_name = name.strip()
+        existing = self.user_repo.get_by_login(clean_name)
+        if existing is not None and existing.id != user.id:
+            raise UserNameAlreadyExists
+
+        user.name = clean_name
+        if new_password:
+            user.password = self.password_hasher.hash(new_password)
+
+        return self.update(user)
 
     def get(self, key: int | str) -> User | None:
         if isinstance(key, str):
@@ -266,8 +300,25 @@ class UseCases:
     def add_user(self, user: User) -> User:
         return self.users.add(user)
 
+    def update_user(self, user: User) -> User:
+        return self.users.update(user)
+
     def register_user(self, name: str, password: str, is_admin: bool = False) -> User:
         return self.users.register(name, password, is_admin)
+
+    def update_user_profile(
+        self,
+        user_id: int,
+        name: str,
+        current_password: str,
+        new_password: str | None = None,
+    ) -> User:
+        return self.users.update_profile(
+            user_id=user_id,
+            name=name,
+            current_password=current_password,
+            new_password=new_password,
+        )
 
     def verify_user_password(self, user: User, password: str) -> bool:
         return self.users.verify_password(user, password)

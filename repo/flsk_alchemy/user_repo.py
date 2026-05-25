@@ -1,4 +1,5 @@
 from flask_sqlalchemy import SQLAlchemy
+from domain.exceptions import UserNotExists
 from domain.models import User as dUser
 from domain.ports import UserRepo
 from .mappers import UserMapper
@@ -16,6 +17,16 @@ class FlaskSQLAlchemyUserRepo(UserRepo):
         self.db.session.flush()
         user.id = orm_user.id
         return user
+
+    def update(self, user: dUser) -> dUser:
+        orm_user = self.db.session.get(oUser, user.id)
+        if not orm_user:
+            raise UserNotExists
+        orm_user.name = user.name
+        orm_user.password = user.password
+        orm_user.is_admin = user.is_admin
+        self.db.session.flush()
+        return self.mapper.to_domain(orm_user)
 
     def get_by_login(self, login: str) -> dUser | None:
         user = self.db.session.execute(

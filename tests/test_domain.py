@@ -2,7 +2,7 @@ import pytest
 from datetime import datetime
 from domain.models import User, Location, Order, Payments
 from domain.use_cases import UseCases
-from domain.exceptions import OrderNotExists
+from domain.exceptions import InvalidPassword, OrderNotExists, UserNameAlreadyExists
 
 
 class FakePasswordHasher:
@@ -31,6 +31,10 @@ class MockUserRepo:
 
     def add(self, user):
         user.id = len(self.users) + 1
+        self.users[user.id] = user
+        return user
+
+    def update(self, user):
         self.users[user.id] = user
         return user
 
@@ -367,3 +371,38 @@ class TestUserPassword:
         assert user.password is not None
         assert use_cases.verify_user_password(user, "secret123")
         assert not use_cases.verify_user_password(user, "wrong_password")
+
+    def test_update_user_profile_changes_name_and_password(self, use_cases):
+        user = use_cases.register_user("old_name", "secret123")
+
+        updated = use_cases.update_user_profile(
+            user_id=user.id,
+            name="new_name",
+            current_password="secret123",
+            new_password="fresh456",
+        )
+
+        assert updated.name == "new_name"
+        assert use_cases.get_user("old_name") is None
+        assert use_cases.verify_user_password(updated, "fresh456")
+
+    def test_update_user_profile_requires_current_password(self, use_cases):
+        user = use_cases.register_user("test", "secret123")
+
+        with pytest.raises(InvalidPassword):
+            use_cases.update_user_profile(
+                user_id=user.id,
+                name="new_name",
+                current_password="wrong",
+            )
+
+    def test_update_user_profile_rejects_duplicate_name(self, use_cases):
+        use_cases.register_user("busy_name", "secret123")
+        user = use_cases.register_user("test", "secret123")
+
+        with pytest.raises(UserNameAlreadyExists):
+            use_cases.update_user_profile(
+                user_id=user.id,
+                name="busy_name",
+                current_password="secret123",
+            )

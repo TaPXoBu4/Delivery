@@ -110,6 +110,54 @@ class TestAuthBlueprint:
         response = client.get("/auth/logout", follow_redirects=True)
         assert response.status_code == 200
 
+    def test_profile_updates_name_and_password(self, app, client):
+        with app.app_context():
+            create_admin_user()
+
+        login(client)
+        response = client.post("/auth/profile", data={
+            "username": "newadmin",
+            "current_password": "password123",
+            "new_password": "fresh456",
+            "new_password2": "fresh456",
+        }, follow_redirects=True)
+
+        assert response.status_code == 200
+        assert "Профиль сохранён".encode() in response.data
+        with app.app_context():
+            user = db.session.execute(
+                db.select(DbUser).filter_by(name="newadmin")
+            ).scalar_one()
+            assert WerkzeugPasswordHasher().verify("fresh456", user.password)
+
+        client.get("/auth/logout")
+        response = client.post("/auth/login", data={
+            "username": "newadmin",
+            "password": "fresh456",
+        }, follow_redirects=True)
+
+        assert response.status_code == 200
+        assert "Неверный логин или пароль.".encode() not in response.data
+
+    def test_profile_rejects_wrong_current_password(self, app, client):
+        with app.app_context():
+            user = create_admin_user()
+            user_id = user.id
+
+        login(client)
+        response = client.post("/auth/profile", data={
+            "username": "newadmin",
+            "current_password": "wrong",
+            "new_password": "",
+            "new_password2": "",
+        }, follow_redirects=True)
+
+        assert response.status_code == 200
+        assert "Текущий пароль указан неверно.".encode() in response.data
+        with app.app_context():
+            user = db.session.get(DbUser, user_id)
+            assert user.name == "admin"
+
 
 class TestWorkshiftBlueprint:
     def test_index_requires_auth(self, client):

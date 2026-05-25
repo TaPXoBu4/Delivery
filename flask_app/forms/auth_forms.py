@@ -23,3 +23,14 @@ class RegistrationForm(FlaskForm):
     #     user = Courier.query.filter_by(username=username.data).first()
     #     if user is not None:
     #         raise ValidationError('Пожалуйста, введите другое имя')
+
+
+class ProfileForm(FlaskForm):
+    username = StringField("Имя", validators=[DataRequired()])
+    current_password = PasswordField("Текущий пароль", validators=[DataRequired()])
+    new_password = PasswordField("Новый пароль")
+    new_password2 = PasswordField(
+        "Повторите новый пароль",
+        validators=[EqualTo("new_password", message="Пароли не совпадают")],
+    )
+    submit = SubmitField("Сохранить")

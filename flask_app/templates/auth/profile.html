@@ -1,0 +1,15 @@
+{% extends '/base.html' %}
+{% from 'bootstrap5/form.html' import render_form %}
+
+{% block content %}
+<header class="page-header">
+    <div>
+        <h1 class="page-title">Профиль</h1>
+        <p class="page-subtitle">{{ current_user.name }}</p>
+    </div>
+</header>
+
+<div class="form-shell">
+    {{ render_form(form) }}
+</div>
+{% endblock %}

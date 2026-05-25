@@ -4,3 +4,15 @@ class OrderNotExists(Exception):
 
 class LocationNotExists(Exception):
     pass
+
+
+class UserNotExists(Exception):
+    pass
+
+
+class UserNameAlreadyExists(Exception):
+    pass
+
+
+class InvalidPassword(Exception):
+    pass
