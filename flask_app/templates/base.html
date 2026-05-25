@@ -6,7 +6,7 @@
         <meta name="viewport" content="width=device-width, initial-scale=1">
         {% block styles %}
             {{ bootstrap.load_css() }}
-            <link rel="stylesheet" href="{{ url_for('static', filename='css/app.css') }}">
+            <link rel="stylesheet" href="{{ url_for('static', filename='css/app.css', v=config.STATIC_ASSET_VERSION) }}">
         {% endblock %}
         <title>Доставка</title>
         {% endblock %}

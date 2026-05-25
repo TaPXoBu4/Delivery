@@ -9,3 +9,4 @@ class Config(object):
                               'sqlite:///' + os.path.join(basedir, 'app.db')
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     ORDER_RETENTION_MONTHS = int(os.environ.get("ORDER_RETENTION_MONTHS", "6"))
+    STATIC_ASSET_VERSION = os.environ.get("STATIC_ASSET_VERSION", "20260525-1")

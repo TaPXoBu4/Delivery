@@ -61,33 +61,25 @@ body {
 
 .app-navbar .navbar-toggler {
     border-color: var(--line);
+    padding: 0.45rem 0.55rem;
 }
 
 .app-navbar .navbar-toggler-icon {
-    background-image: none;
-    position: relative;
-}
-
-.app-navbar .navbar-toggler-icon::before,
-.app-navbar .navbar-toggler-icon::after,
-.app-navbar .navbar-toggler-icon {
-    border-top: 2px solid var(--tomato-dark);
+    width: 1.35rem;
+    height: 1rem;
+    border: 0;
+    background-image:
+        linear-gradient(var(--tomato-dark), var(--tomato-dark)),
+        linear-gradient(var(--tomato-dark), var(--tomato-dark)),
+        linear-gradient(var(--tomato-dark), var(--tomato-dark));
+    background-position: 0 0, 0 50%, 0 100%;
+    background-repeat: no-repeat;
+    background-size: 100% 2px;
 }
 
 .app-navbar .navbar-toggler-icon::before,
 .app-navbar .navbar-toggler-icon::after {
-    position: absolute;
-    left: 0;
-    width: 100%;
-    content: "";
-}
-
-.app-navbar .navbar-toggler-icon::before {
-    top: 0.45rem;
-}
-
-.app-navbar .navbar-toggler-icon::after {
-    top: 0.9rem;
+    content: none;
 }
 
 .app-navbar .nav-link:hover,
