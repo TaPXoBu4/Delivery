@@ -78,6 +78,16 @@ class MockOrderRepo:
             raise OrderNotExists
         del self.orders[id]
 
+    def delete_older_than(self, cutoff):
+        order_ids = [
+            order_id
+            for order_id, order in self.orders.items()
+            if order.timestamp < cutoff
+        ]
+        for order_id in order_ids:
+            del self.orders[order_id]
+        return len(order_ids)
+
 
 class MockLocationRepo:
     def __init__(self):
@@ -220,6 +230,32 @@ class TestOrderOperations:
         orders = use_cases.get_orders(courier=courier)
         assert len(orders) == 1
         assert orders[0].address == "ул. Тестовая, 1"
+
+    def test_delete_orders_older_than_retention_months(self, use_cases):
+        use_cases.orders.now = lambda: datetime(2026, 5, 25, 10, 0)
+
+        old_order = use_cases.add_order(Order(
+            address="старый заказ",
+            location=None,
+            courier=None,
+            payment=Payments.CASH,
+            timestamp=datetime(2025, 11, 25, 9, 59),
+            price=100,
+        ))
+        boundary_order = use_cases.add_order(Order(
+            address="ровно шесть месяцев",
+            location=None,
+            courier=None,
+            payment=Payments.CASH,
+            timestamp=datetime(2025, 11, 25, 10, 0),
+            price=200,
+        ))
+
+        deleted_count = use_cases.delete_orders_older_than_months(6)
+
+        assert deleted_count == 1
+        assert use_cases.get_order(old_order.id) is None
+        assert use_cases.get_order(boundary_order.id) is not None
 
 
 class TestShiftCalculation:

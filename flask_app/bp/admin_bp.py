@@ -1,9 +1,8 @@
-from datetime import datetime
-
 from dishka.integrations.flask import FromDishka, inject
 from flask import Blueprint, flash, redirect, render_template, request, url_for
 from flask_login import current_user, login_required
 
+from domain.clock import irkutsk_now
 from domain.models import Location as DomainLocation
 from domain.models import Order, Payments
 from domain.use_cases import UseCases
@@ -63,7 +62,7 @@ def simple_order(use_cases: FromDishka[UseCases]):
             price=form.price.data or 0,
             payment=Payments(form.pay_type.data),
             courier=None,
-            timestamp=datetime.now(),
+            timestamp=irkutsk_now(),
         )
         use_cases.add_order(order)
         flash("Самовывоз добавлен")

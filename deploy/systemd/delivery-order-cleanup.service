@@ -1,0 +1,12 @@
+[Unit]
+Description=Delivery monthly order cleanup
+Wants=network-online.target
+After=network-online.target
+
+[Service]
+Type=oneshot
+User=delivery
+Group=delivery
+WorkingDirectory=/srv/delivery/current
+EnvironmentFile=/etc/delivery/delivery.env
+ExecStart=/srv/delivery/current/.venv/bin/flask --app wsgi orders cleanup

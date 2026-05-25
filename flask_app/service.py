@@ -1,5 +1,6 @@
 from flask_sqlalchemy import SQLAlchemy
 
+from domain.clock import irkutsk_now, irkutsk_today
 from domain.use_cases import UseCases
 from flask_app.security import WerkzeugPasswordHasher
 from repo.flsk_alchemy import (
@@ -17,4 +18,6 @@ def create_use_cases(db: SQLAlchemy):
         location_repo=FlaskSQLAlchemyLocationRepo(db),
         uow=SQLAlchemyUnitOfWork(db),
         password_hasher=WerkzeugPasswordHasher(),
+        today=irkutsk_today,
+        now=irkutsk_now,
     )

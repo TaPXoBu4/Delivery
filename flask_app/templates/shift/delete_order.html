@@ -5,6 +5,7 @@
 <div class="form-shell">
 <h3>Вы точно хотите удалить заказ?</h3>
 <p>
+    {{ order.timestamp|irkutsk_time }},
     {% if order.address %}
         {{ order.address }},
     {% endif %}

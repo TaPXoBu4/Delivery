@@ -3,6 +3,7 @@ from datetime import datetime
 from sqlalchemy import DateTime, Enum, ForeignKey
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
+from domain.clock import irkutsk_now
 from domain.models import Payments
 
 from .base import db
@@ -32,4 +33,4 @@ class Order(db.Model):
     location: Mapped["Location"] = relationship()
     courier_id: Mapped[int | None] = mapped_column(ForeignKey("user.id"))
     courier: Mapped["User"] = relationship()
-    timestamp: Mapped[datetime] = mapped_column(DateTime, default=datetime.now)
+    timestamp: Mapped[datetime] = mapped_column(DateTime, default=irkutsk_now)

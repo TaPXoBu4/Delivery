@@ -1,9 +1,8 @@
-from datetime import datetime
-
 from dishka.integrations.flask import FromDishka, inject
 from flask import Blueprint, flash, redirect, render_template, request, url_for
 from flask_login import current_user, login_required
 
+from domain.clock import irkutsk_now
 from domain.models import Order, Payments
 from domain.use_cases import UseCases
 from flask_app.forms.order_forms import DeleteForm, OrderForm
@@ -47,7 +46,7 @@ def create_order(use_cases: FromDishka[UseCases]):
             price=form.price.data or 0,
             payment=Payments(form.pay_type.data),
             courier=user,
-            timestamp=datetime.now(),
+            timestamp=irkutsk_now(),
         )
         use_cases.add_order(order)
         flash("Заказ создан")

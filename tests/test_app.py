@@ -1,5 +1,5 @@
 import pytest
-from datetime import datetime
+from datetime import date, datetime
 
 from flask_app import create_app
 from flask_app.login_manager import FlaskUser
@@ -125,6 +125,7 @@ class TestAdminBlueprint:
 
     def test_order_list_with_pickup_order(self, app, client):
         with app.app_context():
+            app.extensions["use_cases"].orders.today = lambda: date(2026, 5, 25)
             create_admin_user()
             order = Order(
                 address=None,
@@ -132,7 +133,7 @@ class TestAdminBlueprint:
                 payment=Payments.CASH,
                 courier_id=None,
                 location_id=None,
-                timestamp=datetime.now(),
+                timestamp=datetime(2026, 5, 25, 14, 5),
             )
             db.session.add(order)
             db.session.commit()
@@ -142,7 +143,27 @@ class TestAdminBlueprint:
 
         assert response.status_code == 200
         assert "Самовывоз".encode() in response.data
+        assert b"14:05" in response.data
         assert b"/admin_panel/delete_order/" in response.data
+
+    def test_simple_order_uses_irkutsk_clock(self, app, client, monkeypatch):
+        timestamp = datetime(2026, 5, 25, 16, 40)
+        monkeypatch.setattr("flask_app.bp.admin_bp.irkutsk_now", lambda: timestamp)
+
+        with app.app_context():
+            create_admin_user()
+
+        login(client)
+        response = client.post(
+            "/admin_panel/simple_order",
+            data={"price": 700, "pay_type": Payments.CASH.value},
+            follow_redirects=True,
+        )
+
+        assert response.status_code == 200
+        with app.app_context():
+            order = db.session.execute(db.select(Order)).scalar_one()
+            assert order.timestamp == timestamp
 
     def test_locations_have_edit_and_delete_actions(self, app, client):
         with app.app_context():
@@ -197,6 +218,70 @@ class TestAdminBlueprint:
         assert response.status_code == 200
         with app.app_context():
             assert db.session.get(Location, location_id) is None
+
+    def test_delete_orders_older_than_cutoff(self, app):
+        with app.app_context():
+            old_order = Order(
+                address="old",
+                price=100,
+                payment=Payments.CASH,
+                courier_id=None,
+                location_id=None,
+                timestamp=datetime(2025, 1, 1, 10, 0),
+            )
+            fresh_order = Order(
+                address="fresh",
+                price=200,
+                payment=Payments.CASH,
+                courier_id=None,
+                location_id=None,
+                timestamp=datetime(2026, 1, 1, 10, 0),
+            )
+            db.session.add_all([old_order, fresh_order])
+            db.session.commit()
+            old_order_id = old_order.id
+            fresh_order_id = fresh_order.id
+
+            deleted_count = app.extensions["use_cases"].delete_orders_older_than(
+                datetime(2025, 7, 1, 0, 0)
+            )
+            db.session.expire_all()
+
+            assert deleted_count == 1
+            assert db.session.get(Order, old_order_id) is None
+            assert db.session.get(Order, fresh_order_id) is not None
+
+    def test_cleanup_orders_cli_command(self, app, runner):
+        app.extensions["use_cases"].orders.now = lambda: datetime(2026, 5, 25, 10, 0)
+        with app.app_context():
+            old_order = Order(
+                address="old",
+                price=100,
+                payment=Payments.CASH,
+                courier_id=None,
+                location_id=None,
+                timestamp=datetime(2025, 11, 25, 9, 59),
+            )
+            fresh_order = Order(
+                address="fresh",
+                price=200,
+                payment=Payments.CASH,
+                courier_id=None,
+                location_id=None,
+                timestamp=datetime(2025, 11, 25, 10, 0),
+            )
+            db.session.add_all([old_order, fresh_order])
+            db.session.commit()
+            old_order_id = old_order.id
+            fresh_order_id = fresh_order.id
+
+        result = runner.invoke(args=["orders", "cleanup"])
+
+        assert result.exit_code == 0
+        assert "Deleted 1 orders older than 6 months." in result.output
+        with app.app_context():
+            assert db.session.get(Order, old_order_id) is None
+            assert db.session.get(Order, fresh_order_id) is not None
 
 
 class TestErrorHandlers:

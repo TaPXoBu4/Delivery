@@ -1,4 +1,4 @@
-from datetime import date
+from datetime import date, datetime
 from typing import Protocol
 
 from .models import Location, Order, User
@@ -18,6 +18,8 @@ class OrderRepo(Protocol):
     def update(self, order: Order) -> Order: ...
 
     def delete(self, id: int) -> None: ...
+
+    def delete_older_than(self, cutoff: datetime) -> int: ...
 
 
 class UserRepo(Protocol):

@@ -10,6 +10,8 @@ from flask_login import current_user
 
 from config import Config
 from container import create_container
+from domain.clock import format_irkutsk_time
+from flask_app.cli import register_cli
 from flask_app.login_manager import login_manager
 from flask_app.service import create_use_cases
 from repo.flsk_alchemy.base import db
@@ -47,6 +49,7 @@ def create_app(test_config=None):
     Bootstrap5(app)
     login_manager.init_app(app)
     login_manager.login_view = "auth.login"
+    app.add_template_filter(format_irkutsk_time, "irkutsk_time")
 
     use_cases = create_use_cases(db)
     app.extensions["use_cases"] = use_cases
@@ -70,5 +73,6 @@ def create_app(test_config=None):
     app.register_blueprint(errors.bp)
 
     setup_dishka(container=container, app=app)
+    register_cli(app)
 
     return app

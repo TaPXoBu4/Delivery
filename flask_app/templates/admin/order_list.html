@@ -17,6 +17,9 @@
         <div class="ticket-main">
             <p class="ticket-address">{{ order.address or 'Самовывоз' }}</p>
             <div class="ticket-meta">
+                <time class="time-badge" datetime="{{ order.timestamp.isoformat() }}" title="Время Иркутской области">
+                    {{ order.timestamp|irkutsk_time }}
+                </time>
                 {% if order.location %}
                     <span class="zone-badge">{{ order.location.name }}</span>
                 {% endif %}

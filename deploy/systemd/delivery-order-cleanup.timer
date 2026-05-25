@@ -1,0 +1,13 @@
+[Unit]
+Description=Run Delivery order cleanup monthly
+
+[Timer]
+# This uses the server local timezone. On the VDS, set:
+# sudo timedatectl set-timezone Asia/Irkutsk
+OnCalendar=*-*-01 03:00:00
+Persistent=true
+RandomizedDelaySec=15m
+Unit=delivery-order-cleanup.service
+
+[Install]
+WantedBy=timers.target

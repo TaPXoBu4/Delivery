@@ -1,6 +1,7 @@
 from collections.abc import Callable, Sequence
 from collections import defaultdict
-from datetime import date
+from calendar import monthrange
+from datetime import date, datetime
 
 from .models import Location, Order, PICKUP_COURIER_NAME, Payments, User
 from .ports import LocationRepo, OrderRepo, PasswordHasher, UnitOfWork, UserRepo
@@ -21,10 +22,12 @@ class OrderService:
         order_repo: OrderRepo,
         uow: UnitOfWork,
         today: Callable[[], date],
+        now: Callable[[], datetime],
     ) -> None:
         self.order_repo = order_repo
         self.uow = uow
         self.today = today
+        self.now = now
 
     def add(self, order: Order) -> Order:
         added = self.order_repo.add(order)
@@ -48,6 +51,25 @@ class OrderService:
     def delete(self, id: int) -> None:
         self.order_repo.delete(id)
         self.uow.commit()
+
+    def delete_older_than(self, cutoff: datetime) -> int:
+        deleted_count = self.order_repo.delete_older_than(cutoff)
+        self.uow.commit()
+        return deleted_count
+
+    def delete_older_than_months(self, months: int) -> int:
+        if months < 1:
+            raise ValueError("Months must be a positive integer")
+
+        return self.delete_older_than(subtract_months(self.now(), months))
+
+
+def subtract_months(value: datetime, months: int) -> datetime:
+    month_index = value.month - 1 - months
+    year = value.year + month_index // 12
+    month = month_index % 12 + 1
+    day = min(value.day, monthrange(year, month)[1])
+    return value.replace(year=year, month=month, day=day)
 
 
 class UserService:
@@ -206,9 +228,10 @@ class UseCases:
         uow: UnitOfWork | None = None,
         password_hasher: PasswordHasher | None = None,
         today: Callable[[], date] = date.today,
+        now: Callable[[], datetime] = datetime.now,
     ) -> None:
         uow = uow or NullUnitOfWork()
-        self.orders = OrderService(order_repo, uow, today)
+        self.orders = OrderService(order_repo, uow, today, now)
         self.users = UserService(user_repo, uow, password_hasher)
         self.locations = LocationService(location_repo, uow)
         self.shift_calculator = ShiftCalculator()
@@ -231,6 +254,12 @@ class UseCases:
 
     def delete_order(self, id: int) -> None:
         self.orders.delete(id)
+
+    def delete_orders_older_than(self, cutoff: datetime) -> int:
+        return self.orders.delete_older_than(cutoff)
+
+    def delete_orders_older_than_months(self, months: int) -> int:
+        return self.orders.delete_older_than_months(months)
 
     # --- Users ---
 

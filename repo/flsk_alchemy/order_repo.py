@@ -2,6 +2,7 @@ from datetime import date as dt_date
 from datetime import datetime, timedelta
 
 from flask_sqlalchemy import SQLAlchemy
+from sqlalchemy import delete
 
 from domain.exceptions import OrderNotExists
 from domain.models import Order as dOrder
@@ -38,7 +39,7 @@ class FlaskSQLAlchemyOrderRepo(OrderRepo):
         if courier:
             filters.append(oOrder.courier_id == courier.id)
 
-        stmt = self.db.select(oOrder).filter(*filters)
+        stmt = self.db.select(oOrder).filter(*filters).order_by(oOrder.timestamp)
         orders = self.db.session.execute(stmt).scalars().all()
         return [self.mapper.to_domain(order) for order in orders]
 
@@ -49,6 +50,13 @@ class FlaskSQLAlchemyOrderRepo(OrderRepo):
 
         self.db.session.delete(orm_order)
         self.db.session.flush()
+
+    def delete_older_than(self, cutoff: datetime) -> int:
+        result = self.db.session.execute(
+            delete(oOrder).where(oOrder.timestamp < cutoff)
+        )
+        self.db.session.flush()
+        return result.rowcount or 0
 
     def update(self, order: dOrder) -> dOrder:
         orm_order = self.db.session.get(oOrder, order.id)
