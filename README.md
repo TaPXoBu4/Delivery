@@ -31,3 +31,11 @@ Systemd and nginx templates live in `deploy/`:
 - `deploy/systemd/delivery.service` runs the web app through Gunicorn.
 - `deploy/systemd/delivery-order-cleanup.*` runs monthly order cleanup.
 - `deploy/nginx/delivery.conf` proxies the Cyrillic domain through nginx.
+
+The nginx static file location reads files from `/srv/delivery/current`, so the
+nginx worker user must be able to traverse the deployment directory:
+
+```bash
+sudo usermod -aG delivery www-data
+sudo systemctl restart nginx
+```
