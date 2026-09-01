@@ -1,16 +1,17 @@
-from flask_wtf import FlaskForm
 from wtforms import BooleanField, PasswordField, StringField, SubmitField
 from wtforms.validators import DataRequired, EqualTo
 
+from flask_app.forms.base import BaseForm
 
-class LoginForm(FlaskForm):
+
+class LoginForm(BaseForm):
     username = StringField("Имя", validators=[DataRequired()])
     password = PasswordField("Пароль", validators=[DataRequired()])
     remember_me = BooleanField("Запомнить меня")
     submit = SubmitField("Войти")
 
 
-class RegistrationForm(FlaskForm):
+class RegistrationForm(BaseForm):
     username = StringField("Имя", validators=[DataRequired()])
     password = PasswordField("Пароль", validators=[DataRequired()])
     password2 = PasswordField(
@@ -25,7 +26,7 @@ class RegistrationForm(FlaskForm):
     #         raise ValidationError('Пожалуйста, введите другое имя')
 
 
-class ProfileForm(FlaskForm):
+class ProfileForm(BaseForm):
     username = StringField("Имя", validators=[DataRequired()])
     current_password = PasswordField("Текущий пароль", validators=[DataRequired()])
     new_password = PasswordField("Новый пароль")

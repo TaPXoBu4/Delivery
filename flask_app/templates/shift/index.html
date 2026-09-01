@@ -11,10 +11,10 @@
 
 {% if shift_rows %}
     <section class="summary-grid" aria-label="Сводка смены">
-        {% for label, value in shift_rows %}
+        {% for label, value, muted in shift_rows %}
         <div class="summary-tile">
             <span class="summary-label">{{ label }}</span>
-            <span class="summary-value">{{ value }}</span>
+            <span class="summary-value{% if muted %} summary-value-muted{% endif %}">{{ value }}</span>
         </div>
         {% endfor %}
     </section>

@@ -11,6 +11,7 @@
     --basil: #2f7d4a;
     --basil-dark: #236239;
     --steel: #5f6f78;
+    --faint: #a8a29c;
     --paper-shadow: 0 12px 28px rgba(82, 52, 31, 0.08);
 }
 
@@ -202,6 +203,10 @@ body {
     font-weight: 600;
 }
 
+.summary-value-muted {
+    color: var(--faint);
+}
+
 .ticket-list {
     display: grid;
     gap: 0.85rem;
@@ -296,7 +301,12 @@ body {
 
 .kitchen-table .table {
     margin-bottom: 0;
-    min-width: 720px;
+    min-width: 820px;
+}
+
+.revenue-block {
+    max-width: 260px;
+    margin-top: 0.9rem;
 }
 
 .kitchen-table thead th {

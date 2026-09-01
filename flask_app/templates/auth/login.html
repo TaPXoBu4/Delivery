@@ -3,7 +3,7 @@
 
 {% block content %}
 <div class="form-shell">
-	{{ render_form(form) }}
+	{{ render_form(form, novalidate=True) }}
 	<hr>
 	<p>Ещё не с нами? <a href="{{ url_for('auth.register') }}">Регистрируйся!</a></p>
 </div>

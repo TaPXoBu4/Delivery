@@ -10,7 +10,7 @@
 </header>
 
 <h2 class="section-title">Сводка по курьерам</h2>
-{% if summaries %}
+{% if summaries and summaries[-1].orders_count %}
 <div class="kitchen-table">
     <table class="table table-striped">
         <thead>
@@ -19,6 +19,7 @@
                 <th>Заказов</th>
                 <th>Наличные</th>
                 <th>Терминал</th>
+                <th>Оплачено</th>
                 <th>Сумма</th>
                 <th>Заработок</th>
                 <th>Должен сдать</th>
@@ -31,6 +32,7 @@
                     <td>{{ summary.orders_count }}</td>
                     <td>{{ summary.cash_total }} ₽</td>
                     <td>{{ summary.terminal_total }} ₽</td>
+                    <td>{{ summary.paid_total }} ₽</td>
                     <td>{{ summary.total_price }} ₽</td>
                     <td>{{ summary.earned }} ₽</td>
                     <td>{{ summary.to_surrender }} ₽</td>
@@ -38,6 +40,10 @@
             {% endfor %}
         </tbody>
     </table>
+</div>
+<div class="summary-tile revenue-block">
+    <span class="summary-label">Вся выручка за смену</span>
+    <span class="summary-value">{{ summaries[-1].revenue }} ₽</span>
 </div>
 {% else %}
     <div class="empty-state">Сегодня заказов нет</div>

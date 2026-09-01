@@ -14,3 +14,7 @@ class ShiftSummary:
     to_surrender: int = 0
     is_pickup: bool = False
     is_total: bool = False
+
+    @property
+    def revenue(self) -> int:
+        return self.total_price - self.earned

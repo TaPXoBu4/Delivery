@@ -295,6 +295,127 @@ class TestShiftCalculation:
         assert summary.cash_total == 300
         assert summary.terminal_total == 200
 
+    def test_calculate_shift_paid_orders_reduce_to_surrender(self, use_cases):
+        courier = User(name="Иван")
+        use_cases.add_user(courier)
+
+        loc = use_cases.get_location(1)  # Центр, cost=100
+        orders = [
+            Order(
+                address="ул. 1",
+                location=loc,
+                courier=courier,
+                payment=Payments.CASH,
+                timestamp=datetime.now(),
+                price=700,
+            ),
+            Order(
+                address="ул. 2",
+                location=None,
+                courier=courier,
+                payment=Payments.TERMINAL,
+                timestamp=datetime.now(),
+                price=500,
+            ),
+            Order(
+                address="ул. 3",
+                location=loc,
+                courier=courier,
+                payment=Payments.PAID,
+                timestamp=datetime.now(),
+                price=300,
+            ),
+        ]
+
+        summary = use_cases.calculate_shift("Иван", orders)
+
+        assert summary.orders_count == 3
+        assert summary.total_price == 1500
+        assert summary.cash_total == 700
+        assert summary.terminal_total == 500
+        assert summary.paid_total == 300
+        assert summary.paid_count == 1
+        # Оплаченные продолжают давать заработок (формула не меняется)
+        assert summary.earned == 200
+        # Тариф оплаченного тоже вычитается из наличных: 700 - 200
+        assert summary.to_surrender == 500
+
+    def test_calculate_shift_only_paid_orders(self, use_cases):
+        courier = User(name="Иван")
+        use_cases.add_user(courier)
+
+        loc = use_cases.get_location(1)  # Центр, cost=100
+        orders = [
+            Order(
+                address="ул. 1",
+                location=loc,
+                courier=courier,
+                payment=Payments.PAID,
+                timestamp=datetime.now(),
+                price=300,
+            )
+        ]
+
+        summary = use_cases.calculate_shift("Иван", orders)
+
+        assert summary.cash_total == 0
+        assert summary.paid_total == 300
+        assert summary.paid_count == 1
+        assert summary.earned == 100
+        # Наличных нет, а пиццерия должна курьеру тариф — поле уходит в минус
+        assert summary.to_surrender == -100
+
+    def test_summary_revenue_and_ito_totals(self, use_cases):
+        courier = User(name="Иван")
+        use_cases.add_user(courier)
+
+        loc = use_cases.get_location(1)  # Центр, cost=100
+        use_cases.add_order(Order(
+            address="ул. 1",
+            location=loc,
+            courier=courier,
+            payment=Payments.CASH,
+            timestamp=datetime.now(),
+            price=700,
+        ))
+        use_cases.add_order(Order(
+            address="ул. 2",
+            location=loc,
+            courier=courier,
+            payment=Payments.PAID,
+            timestamp=datetime.now(),
+            price=300,
+        ))
+        use_cases.add_order(Order(
+            address=None,
+            location=None,
+            courier=None,
+            payment=Payments.CASH,
+            timestamp=datetime.now(),
+            price=1500,
+        ))
+
+        all_orders = use_cases.get_orders()
+        summaries = use_cases.calculate_all_couriers_summary(all_orders)
+
+        assert len(summaries) == 3  # Иван + Самовывоз + Итого
+        ivan = next(s for s in summaries if s.courier_name == "Иван")
+        pickup = next(s for s in summaries if s.is_pickup)
+        total = next(s for s in summaries if s.is_total)
+
+        assert pickup.to_surrender == 0
+        assert pickup.revenue == 1500
+
+        assert total.total_price == 2500
+        assert total.paid_total == 300
+        assert total.paid_count == 1
+        assert total.earned == 200
+        # Иван: 700 наличными - 200 заработок (тариф оплаченного тоже вычитается)
+        assert total.to_surrender == 500
+        # Выручка за смену: все заказы минус заработок курьеров
+        assert total.revenue == 2300
+        assert ivan.revenue == 800
+
     def test_group_orders_by_couriers(self, use_cases):
         courier1 = User(name="Иван")
         courier2 = User(name="Петр")
